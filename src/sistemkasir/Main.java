@@ -8,7 +8,7 @@ package sistemkasir;
  *
  * @author vallen
  */
-public class SistemKasir {
+public class Main {
 
     /**
      * @param args the command line arguments

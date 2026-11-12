@@ -1,0 +1,8 @@
+Config adalah papan pengaturan restoran.
+Isinya jam buka, alamat, nomor telepon, tarif pajak, dan letak gudang bahan.
+Dalam aplikasi, Config menyimpan pengaturan seperti nama aplikasi, alamat database 
+tempat data disimpan, kata sandi untuk terhubung ke layanan lain, 
+bahasa, dan mode aplikasi (masih uji coba atau sudah dipakai sungguhan).
+Semua itu ditaruh di satu tempat, bukan ditulis berulang-ulang di banyak bagian.
+Kalau restoran pindah alamat, cukup ubah satu papan itu dan seluruh restoran ikut tahu.
+Begitu pula di aplikasi: mengganti pengaturan cukup di satu file tanpa membongkar program.
