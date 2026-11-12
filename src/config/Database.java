@@ -80,8 +80,10 @@ public class Database {
         this.connection.close();
     }
     
-    public Statement start(){
+    public Statement start() throws IOException{
+        this.loadConfiguration();
         try {
+            
             this.startConnection();
             this.startStatement();
         } catch (SQLException ex) {
