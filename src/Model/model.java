@@ -20,7 +20,6 @@ public abstract class model {
     private String tabel = getClass().getSimpleName();
     private Statement stm;
     private String type = "";
-    private String colum = "*";
     private String[] insCols;
     private String[] insVals;
     private List<String> conditions = new ArrayList<>();
@@ -39,6 +38,9 @@ public abstract class model {
         }
     }
 
+    /**
+     * Fungsi buildSql adalah proses build ada bagian untuk merekonstruksi sebuah data
+     */
     private void buildSql() {
         if (!SQL.isEmpty() && type.isEmpty()) {
             return; // raw query dari setQuery
@@ -46,7 +48,9 @@ public abstract class model {
         StringBuilder sb = new StringBuilder();
         switch (type) {
             case "SELECT":
-                sb.append("SELECT ").append(colum).append(" FROM ").append(tabel);
+                sb.append("SELECT ")
+                        .append(insCols != null ? String.join(",", insCols) : "*")
+                        .append(" FROM ").append(tabel);
                 break;
             case "INSERT":
                 sb.append("INSERT INTO ").append(tabel)
@@ -59,7 +63,7 @@ public abstract class model {
                 break;
             case "UPDATE":
                 sb.append("UPDATE ").append(tabel).append(" SET ")
-                        .append(colum);
+                        .append(String.join(", ", insCols));
                 break;
             case "DELETE":
                 sb.append("DELETE FROM ").append(tabel);
@@ -86,7 +90,6 @@ public abstract class model {
 
     private void reset() {
         type = "";
-        colum = "*";
         insCols = null;
         insVals = null;
         SQL = "";
@@ -99,7 +102,7 @@ public abstract class model {
 
         this.type = "SELECT";
         if (Column.length > 0) {
-            this.colum = String.join(",", Column); // fix: > 0, bukan > 1
+            this.insCols = Column;
         }
         return this;
     }
@@ -112,7 +115,7 @@ public abstract class model {
     }
 
     /**
-     * ini untuk set limit yang akan dipanggil dan di tampilkan
+     * ini untuk set limit dari database yang dipanggil dan di tampilkan
      * @param Limit isi dengan jumlah limit yang akan di tambilkan
      * @return jalankan dengan {@code .run()}
      */
@@ -147,21 +150,16 @@ public abstract class model {
         }
         this.type = "UPDATE";
 
-        StringBuilder sb = new StringBuilder();
+        this.insCols = new String[Cols.length];
         for (int i = 0; i < Cols.length; i++) {
-            sb.append(Cols[i])
-                    .append(" = ")
-                    .append("'%s'".formatted(Value[i]))
-                    .append(", ");
+            this.insCols[i] = Cols[i] + " = '" + Value[i].replace("'", "''") + "'";
         }
-        sb.deleteCharAt(sb.length()-2);
-        this.colum = sb.toString();
         return this;
     }
 
     public model updateOnce(String Cols, String Value) {
         this.type = "UPDATE";
-        this.colum = Cols + " = " + Value;
+        this.insCols = new String[]{Cols + " = '" + Value.replace("'", "''") + "'"};
         return this;
     }
 
