@@ -26,13 +26,12 @@ CREATE TABLE IF NOT EXISTS `vouchers` (
 
 CREATE TABLE IF NOT EXISTS `suppliers` (
 	`id` INT AUTO_INCREMENT,
-	`nomor` VARCHAR(20) NOT NULL,
 	`nama` VARCHAR(150) NOT NULL,
 	`alamat` VARCHAR(255) NOT NULL,
 	`nomor_hp` VARCHAR(20) NOT NULL,
 	`dihapus` SMALLINT NOT NULL DEFAULT 0,
 	PRIMARY KEY(`id`),
-	CONSTRAINT `uq_supplier_nomor` UNIQUE (`nomor`)
+	CONSTRAINT `uq_supplier_nomor` UNIQUE (`nomor_hp`)
 );
 
 

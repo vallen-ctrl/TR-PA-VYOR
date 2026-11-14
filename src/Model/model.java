@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.InputMismatchException;
 import java.util.List;
+import utils.Validation;
 
 /**
  *
@@ -26,8 +27,11 @@ public abstract class model {
     private Integer limit;
     private Integer offset = 0;
     private String SQL = "";
+    
+    public Validation validator;
 
     public model() {
+        this.validator = new Validation();
         try {
             this.stm = new Database().start();
         } catch (IOException | ClassNotFoundException | SQLException e) {
@@ -113,7 +117,7 @@ public abstract class model {
      * @return jalankan dengan {@code .run()}
      */
     public model setLimit(int Limit) {
-        this.limit = limit;
+        this.limit = Limit;
         return this;
     }
     
@@ -147,9 +151,10 @@ public abstract class model {
         for (int i = 0; i < Cols.length; i++) {
             sb.append(Cols[i])
                     .append(" = ")
-                    .append(Value[i])
+                    .append("'%s'".formatted(Value[i]))
                     .append(", ");
         }
+        sb.deleteCharAt(sb.length()-2);
         this.colum = sb.toString();
         return this;
     }

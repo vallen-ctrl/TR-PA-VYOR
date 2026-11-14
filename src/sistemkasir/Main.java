@@ -17,11 +17,7 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws SQLException {
-        ResultSet res = new Computer().setQuery("SELECT * from computer").run();
-        while (res.next()) {
-            String nama = res.getString("name");
-            System.out.println(nama);
-        }
+        
     }
 
 }
