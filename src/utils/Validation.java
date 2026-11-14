@@ -14,7 +14,7 @@ public class Validation {
 
     public void chekPanjangKode(String kode, int maxKode) {
         if (kode.length() > maxKode) {
-            throw new InputMismatchException("Hanya menerima kode dengan panjang dibawah 11" + maxKode);
+            throw new InputMismatchException("Hanya menerima kode dengan panjang dibawah " + maxKode);
         }
     }
 
@@ -23,7 +23,7 @@ public class Validation {
             throw new InputMismatchException("Hanaya menerima nama dengan panjang dibawah 101" + maxNama);
         }
     }
-
+    
     public void chekNomorHp(String nomorHp, int maxNoHp) {
         if (nomorHp == null || nomorHp.isBlank()) {
             throw new InputMismatchException("Nomor HP tidak boleh kosong");
