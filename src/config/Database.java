@@ -1,6 +1,5 @@
 package config;
 import java.io.IOException;
-import java.util.Scanner;
 import java.util.Properties;
 import java.io.FileInputStream;
 import java.sql.*;
@@ -50,7 +49,7 @@ public class Database {
         );
     }
     
-    private void startConnection() throws SQLException{
+    private void startConnection() throws SQLException, ClassNotFoundException{
         String url = "jdbc:mysql://%s:%s/%s"
                 .formatted(
                     this.dbConf.host, 
@@ -58,12 +57,8 @@ public class Database {
                     this.dbConf.name
                 );
         
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-        } catch (ClassNotFoundException ex) {
-            System.getLogger(Database.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-        }
-        
+        Class.forName("com.mysql.cj.jdbc.Driver");
+       
         this.connection = DriverManager.getConnection(
                 url, 
                 this.dbConf.username,
@@ -80,15 +75,10 @@ public class Database {
         this.connection.close();
     }
     
-    public Statement start() throws IOException{
+    public Statement start() throws IOException, ClassNotFoundException, SQLException{
         this.loadConfiguration();
-        try {
-            
-            this.startConnection();
-            this.startStatement();
-        } catch (SQLException ex) {
-            System.getLogger(Database.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-        }
+        this.startConnection();
+        this.startStatement();
         return this.stm;
     }
 }
