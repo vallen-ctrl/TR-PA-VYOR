@@ -28,6 +28,10 @@ public abstract class model {
     private Integer offset = 0;
     private String SQL = "";
     
+    public String thisTableName(){
+        return this.tabel;
+    }
+    
     public Validation validator;
 
     public model() {
@@ -75,7 +79,7 @@ public abstract class model {
         if (!conditions.isEmpty() && (type.equals("SELECT")
                 || type.equals("DELETE")
                 || type.equals("UPDATE"))) {
-            if(!joins.isEmpty()) sb.append(String.join(" ", joins));
+            if(!joins.isEmpty()) sb.append(" ").append(String.join(" ", joins));
             sb.append(" WHERE ").append(String.join(" ", conditions));
             if (limit != null && limit > 0) {
 
@@ -111,9 +115,10 @@ public abstract class model {
     public model leftJoin(String tabel, String ON){
         StringBuilder sb = new StringBuilder();
         
-        sb.append("LEFT JOIN ")
-                .append(tabel)
-                .append(ON);
+        sb.append(" LEFT JOIN ")
+                .append(tabel.trim())
+                .append(" ON ")
+                .append(ON.trim());
         this.joins.add(sb.toString());
         return this;
     }
@@ -127,9 +132,10 @@ public abstract class model {
     public model rightJoin(String tabel, String ON){
         StringBuilder sb = new StringBuilder();
         
-        sb.append("RIGHT JOIN ")
-                .append(tabel)
-                .append(ON);
+        sb.append(" RIGHT JOIN ")
+                .append(tabel.trim())
+                .append(" ON ")
+                .append(ON.trim());
         this.joins.add(sb.toString());
         return this;
     }
@@ -143,9 +149,10 @@ public abstract class model {
     public model innerJoin(String tabel, String ON){
         StringBuilder sb = new StringBuilder();
         
-        sb.append("INNER JOIN ")
-                .append(tabel)
-                .append(ON);
+        sb.append(" INNER JOIN ")
+                .append(tabel.trim())
+                .append(" ON ")
+                .append(ON.trim());
         this.joins.add(sb.toString());
         return this;
     }
