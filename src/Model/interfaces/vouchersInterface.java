@@ -24,9 +24,9 @@ public class vouchersInterface {
     private void statusChek(String status){
         String[] statusEnum = {"aktif", "dipakai", "kadaluarsa"};
         for(String stat: statusEnum){
-            if(stat == status) return;
+            if(stat.equals(status)) return;
         }
-        throw new InputMismatchException("tidak menerima status [diterima: aktif, dipakai, kadaluarsa] ->"+status);
+        throw new InputMismatchException("tidak menerima status [diterima: aktif, dipakai, kadaluarsa] -> W"+status);
     }
 
     public vouchersInterface(Integer customer_id, String kode, String jenis, Float persen_diskon, LocalDate berlaku_dari, LocalDate berlaku_sampai, String status) {
@@ -36,6 +36,7 @@ public class vouchersInterface {
         this.persen_diskon = persen_diskon;
         this.berlaku_dari = berlaku_dari;
         this.berlaku_sampai = berlaku_sampai;
+        this.statusChek(status);
         this.status = status;
     }
     

@@ -23,6 +23,7 @@ public abstract class model {
     private String[] insCols;
     private String[] insVals;
     private List<String> conditions = new ArrayList<>();
+    private List<String> joins = new ArrayList<>();
     private Integer limit;
     private Integer offset = 0;
     private String SQL = "";
@@ -74,6 +75,7 @@ public abstract class model {
         if (!conditions.isEmpty() && (type.equals("SELECT")
                 || type.equals("DELETE")
                 || type.equals("UPDATE"))) {
+            if(!joins.isEmpty()) sb.append(String.join(" ", joins));
             sb.append(" WHERE ").append(String.join(" ", conditions));
             if (limit != null && limit > 0) {
 
@@ -96,6 +98,56 @@ public abstract class model {
         limit = null;
         offset = null;
         conditions.clear();
+        joins.clear();
+    }
+    
+    
+    /**
+     * ini akan membantu membuat left join di sql dengan menambahkan bantuan leftJoin
+     * @param tabel nama tabel yang akan dimasukan 
+     * @param ON bentuk relasi antara kedua tabel misal namaTabel1.id = namaTabel2.namatabel1id
+     * @return retrun this jadi pakai .run() untuk menjalankan
+     */
+    public model leftJoin(String tabel, String ON){
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append("LEFT JOIN ")
+                .append(tabel)
+                .append(ON);
+        this.joins.add(sb.toString());
+        return this;
+    }
+    
+    /**
+     * ini akan membantu membuat right join di sql dengan menambahkan bantuan leftJoin
+     * @param tabel nama tabel yang akan dimasukan 
+     * @param ON bentuk relasi antara kedua tabel misal namaTabel1.id = namaTabel2.namatabel1id
+     * @return retrun this jadi pakai .run() untuk menjalankan
+     */
+    public model rightJoin(String tabel, String ON){
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append("RIGHT JOIN ")
+                .append(tabel)
+                .append(ON);
+        this.joins.add(sb.toString());
+        return this;
+    }
+    
+    /**
+     * ini akan membantu membuat inner join di sql dengan menambahkan bantuan leftJoin
+     * @param tabel nama tabel yang akan dimasukan 
+     * @param ON bentuk relasi antara kedua tabel misal namaTabel1.id = namaTabel2.namatabel1id
+     * @return retrun this jadi pakai .run() untuk menjalankan
+     */
+    public model innerJoin(String tabel, String ON){
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append("INNER JOIN ")
+                .append(tabel)
+                .append(ON);
+        this.joins.add(sb.toString());
+        return this;
     }
 
     public model select(String... Column) {

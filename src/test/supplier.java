@@ -89,10 +89,9 @@ public class supplier {
             String alamat = bacaText("Alamat baru   : ");
             String noHp = bacaText("Nomor HP baru : ");
 
-            int hasil = supplier.updateSupplier(
+            int hasil = supplier.update(
                     new String[]{"nama", "alamat", "nomor_hp"},
-                    new String[]{nama, alamat, noHp},
-                    "id = " + id);
+                    new String[]{nama, alamat, noHp}).where("id = " + id).execute();
 
             System.out.println(hasil > 0 ? "Data berhasil diubah." : "Data tidak ditemukan / gagal diubah.");
         } catch (Exception e) {

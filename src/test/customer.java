@@ -92,13 +92,12 @@ public class customer {
             String kode = bacaText("Kode customer yang diubah: ");
             String nama = bacaText("Nama baru                 : ");
             String noHp = bacaText("Nomor HP baru             : ");
-//            LocalDate tglLahir = LocalDate.parse(bacaText("Tgl lahir baru (yyyy-MM-dd): "));
+//          LocalDate tglLahir = LocalDate.parse(bacaText("Tgl lahir baru (yyyy-MM-dd): "));
 
-
-            int hasil = customer.updateCustomer(
+            int hasil = customer.update(
                     new String[]{"nama", "nomor_hp"},
-                    new String[]{nama, noHp},
-                    "kode = '" + kode + "'");
+                    new String[]{nama, noHp}).where(
+                            "kode = '" + kode + "'").execute();
 
             System.out.println(hasil > 0 ? "Data berhasil diubah." : "Data tidak ditemukan / gagal diubah.");
         } catch (Exception e) {

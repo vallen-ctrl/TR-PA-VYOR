@@ -53,15 +53,6 @@ public class suppliers extends model {
         return supplierList;
     }
     
-    public int updateSupplier(String[] Cols, String[] Values, String... Conditions){
-        try {
-            return this.update(Cols, Values).where(Conditions).execute();
-        } catch (SQLException ex) {
-           System.getLogger(customers.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-        }
-        return -1;
-    }
-    
     public int removeSupplier(Integer idSupplier){
         try {
             return this.updateOnce("dihapus", "1").where("id = %d".formatted(idSupplier.toString())).execute();

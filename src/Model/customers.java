@@ -43,15 +43,6 @@ public class customers extends model{
         return 0;
     }
     
-    public int updateCustomer(String[] Cols, String[] Values, String... Conditions){
-        try {
-            return this.update(Cols, Values).where(Conditions).execute();
-        } catch (SQLException ex) {
-           System.getLogger(customers.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-        }
-        return -1;
-    }
-    
     public List<customerInterface> getCustomer(int limit, int Offset){
         List<customerInterface> customer = new ArrayList<>();
         try {
