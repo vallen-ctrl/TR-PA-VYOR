@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 import utils.GenerateRandomKode;
-import utils.LuhnAlgorithm;
+import utils.Luhn;
 import utils.voucher;
 
 /**
@@ -19,7 +19,7 @@ public class utilsTest {
       private static final Scanner in = new Scanner(System.in);
 
     private static final GenerateRandomKode randomKode = new GenerateRandomKode();
-    private static final LuhnAlgorithm luhn = new LuhnAlgorithm();
+    private static final Luhn luhn = new Luhn();
     private static final voucher voucher = new voucher();
 
     public static void main(String[] args) {
@@ -75,7 +75,7 @@ public class utilsTest {
         try {
             String text = bacaText("Masukkan text: ");
 
-            char hasil = luhn.chekSumGenerate(text);
+            char hasil = (char)luhn.chekSumGenerate(text);
 
             System.out.println("\nHasil Checksum Generate");
             System.out.println("Text         : " + text);

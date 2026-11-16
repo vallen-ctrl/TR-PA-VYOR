@@ -1,35 +1,67 @@
 package utils;
 
 public class Luhn {
+    
+    private int findchekDigits(int sumAll) {
+        int a = (10 - (sumAll % 10)) % 10;
+        return a;
+    }
 
     // Menghitung 1 angka pengaman dari deretan angka.
     // Contoh: hitungCheckDigit("001") menghasilkan 8
-    public static int hitungCheckDigit(String angka) {
-        int total = 0;
-        boolean gandakan = true;
-        for (int i = angka.length() - 1; i >= 0; i--) {
-            int digit = Character.getNumericValue(angka.charAt(i));
-            if (gandakan) {
-                digit = digit * 2;
-                if (digit > 9) {
-                    digit = digit - 9;
+    /**
+     *
+     * @param angka
+     * @return int + 64 untuk mengirimkan char ASCII A
+     */
+    public char chekSumGenerate(String Text) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < Text.length(); i++) {
+            sb.append((int) Text.charAt(i));
+        }
+        int jumlah = 0;
+
+        for (int i = sb.toString().length() - 1; i > 0; i--) {
+            int number = sb.toString().charAt(i) - '0';
+            if (i % 2 == 0) {
+                int temp = number * 2;
+                if (temp > 9) {
+                    number = (temp - 9);
+                } else {
+                    number = temp;
                 }
             }
-            total = total + digit;
-            gandakan = !gandakan;
-        }
-        return (10 - (total % 10)) % 10;
-    }
 
+            jumlah += number;
+        }
+        return (char) (findchekDigits(jumlah) + 65);
+    }
     // Mengecek apakah angka yang sudah ada pengaman di akhir itu benar.
     // Contoh: isValid("0018") menghasilkan true
-    public static boolean isValid(String angkaDenganCheck) {
-        if (angkaDenganCheck == null || angkaDenganCheck.length() < 2) {
-            return false;
+    public boolean isValid(String kode) {
+        String payload = kode.substring(0, kode.length() - 1);
+        char chekDigits = kode.charAt(kode.length() - 1);
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < payload.length(); i++) {
+            sb.append((int) payload.charAt(i));
         }
-        String angka = angkaDenganCheck.substring(0, angkaDenganCheck.length() - 1);
-        int check = Character.getNumericValue(
-                angkaDenganCheck.charAt(angkaDenganCheck.length() - 1));
-        return hitungCheckDigit(angka) == check;
+
+        int jumlah = 0;
+
+        for (int i = sb.toString().length() - 1; i > 0; i--) {
+            int number = sb.toString().charAt(i) - '0';
+            if (i % 2 == 0) {
+                int temp = number * 2;
+                if (temp > 9) {
+                    number = (temp - 9);
+                } else {
+                    number = temp;
+                }
+            }
+            jumlah += number;
+        }
+
+        int chekDigitsNums = (int) chekDigits - 65;
+        return (jumlah + chekDigitsNums) % 10 == 0;
     }
 }
