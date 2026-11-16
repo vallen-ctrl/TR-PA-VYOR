@@ -26,8 +26,13 @@ public class voucher {
 
         LocalDate batasAkhir = batasAwal.plusDays(this.extensionDays);
 
-        return !TimeNow.isBefore(batasAwal)
-                && !TimeNow.isAfter(batasAkhir);
+        //disini karena isBefore "<" bukan "<=" dan begitupun isAfter maka harus ada sedikit perubahan. untuk menyesuaikan
+        //misal tanggal 10-10-2006 ultah berarti valid sampai tanggal 13-10 
+        //maka kalau tanpa plus dan minus berarti tanggal validnya hanya dari tanggal 11 - 12 
+        //karena bentuk logikanya gini 10-10 > tanggal sekarang && tanggal sekarang < 13-10
+        //jadi tanggal validnya hanya 11 sampai 12
+        return TimeNow.isBefore(batasAkhir.plusDays(1))
+                && TimeNow.isAfter(batasAwal.minusDays(1));
     }
 
     public String getVoucer(LocalDate TimeNow, LocalDate timeBirthDay) {
