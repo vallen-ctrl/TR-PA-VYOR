@@ -4,6 +4,7 @@
  */
 package Model.interfaces;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
@@ -14,7 +15,7 @@ public class product_batchInterface {
     public Integer id;
     public Integer supplier_id;
     public Integer product_id;
-    public Double harga_beli;
+    public BigDecimal harga_beli;
     public Integer qty;
     public Integer qty_sisa;
     public LocalDate tanggal_pemesanan;
@@ -22,7 +23,7 @@ public class product_batchInterface {
     public LocalDate tanggal_kadaluarsa;
     public boolean ditangani;
 
-    public product_batchInterface(int supplier_id, int product_id, double harga_beli, int qty, int qty_sisa, LocalDate tanggal_pemesanan, LocalDate tanggal_masuk, LocalDate tanggal_kadaluarsa) {
+    public product_batchInterface(int supplier_id, int product_id, BigDecimal harga_beli, int qty, int qty_sisa, LocalDate tanggal_pemesanan, LocalDate tanggal_masuk, LocalDate tanggal_kadaluarsa) {
         this.supplier_id = supplier_id;
         this.product_id = product_id;
         this.harga_beli = harga_beli;
@@ -35,7 +36,7 @@ public class product_batchInterface {
     
     
 
-    public product_batchInterface(int id, int supplier_id, int product_id, double harga_beli, int qty, int qty_sisa, LocalDate tanggal_pemesanan, LocalDate tanggal_masuk, LocalDate tanggal_kadaluarsa, boolean ditangani) {
+    public product_batchInterface(int id, int supplier_id, int product_id, BigDecimal harga_beli, int qty, int qty_sisa, LocalDate tanggal_pemesanan, LocalDate tanggal_masuk, LocalDate tanggal_kadaluarsa, boolean ditangani) {
         this.id = id;
         this.supplier_id = supplier_id;
         this.product_id = product_id;
