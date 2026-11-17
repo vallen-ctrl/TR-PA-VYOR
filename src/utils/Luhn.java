@@ -1,5 +1,5 @@
 package utils;
-
+/** @author jein */
 public class Luhn {
     
     private int findchekDigits(int sumAll) {
