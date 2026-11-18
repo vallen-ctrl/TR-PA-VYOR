@@ -87,6 +87,15 @@ public class transactions extends model {
      */
     public List<transactionsInterface> daftar(String status, LocalDate dari, LocalDate sampai,
             Integer customerId, int limit, int offset) {
+        return daftar(status, dari, sampai, customerId, null, limit, offset);
+    }
+
+    /**
+     * Sama seperti di atas, ditambah filter voucher:
+     * true = hanya transaksi yang memakai voucher, false = hanya yang tanpa voucher, null = semua.
+     */
+    public List<transactionsInterface> daftar(String status, LocalDate dari, LocalDate sampai,
+            Integer customerId, Boolean denganVoucher, int limit, int offset) {
         List<transactionsInterface> hasil = new ArrayList<>();
 
         // model.java hanya memasang LIMIT dan JOIN kalau ada WHERE,
@@ -103,6 +112,9 @@ public class transactions extends model {
         }
         if (customerId != null) {
             this.where("AND customer_id = " + customerId.intValue());
+        }
+        if (denganVoucher != null) {
+            this.where(denganVoucher ? "AND voucher_id IS NOT NULL" : "AND voucher_id IS NULL");
         }
         this.where("ORDER BY waktu DESC");
         this.setLimit(limit).setOffset(offset);
