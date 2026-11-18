@@ -6,6 +6,7 @@ package test;
 
 import Model.interfaces.vouchersInterface;
 import Model.vouchers;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Scanner;
 
@@ -56,7 +57,7 @@ public class voucher {
             LocalDate berlakuDari = LocalDate.parse(bacaText("Berlaku dari (yyyy-MM-dd)   : "));
             LocalDate berlakuSampai = LocalDate.parse(bacaText("Berlaku sampai (yyyy-MM-dd) : "));
             String status = bacaText("Status         : ");
-            float diskon = bacafloat("Diskon         :");
+            BigDecimal diskon = bacaBigDecimal("Diskon         :");
 
             // TODO: sesuaikan urutan parameter konstruktor vouchersInterface
             voucher.add(new vouchersInterface(customerId, kode, jenis, diskon, berlakuDari, berlakuSampai, status));
@@ -66,6 +67,16 @@ public class voucher {
         }
     }
 
+    private static BigDecimal bacaBigDecimal(String label) {
+        try {
+            System.out.print(label);
+            BigDecimal bigDec = in.nextBigDecimal();
+            in.nextLine(); // buang sisa Enter
+            return bigDec;
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
     // DELETE
     private static void hapus() {
         String kode = bacaText("Kode voucher yang dihapus: ");

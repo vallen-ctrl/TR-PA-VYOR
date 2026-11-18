@@ -9,6 +9,7 @@ import Model.product_batches;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Scanner;
+import java.math.BigDecimal;
 
 /**
  *
@@ -56,7 +57,7 @@ public class product_batch {
         try {
             int supplierId = bacaInt("Supplier ID    : ");
             int productId = bacaInt("Product ID     : ");
-            double hargaBeli = bacaDouble("Harga beli     : ");
+            BigDecimal hargaBeli = bacaBigDecimal("Harga beli     : ");
             int qty = bacaInt("Qty            : ");
             int qtySisa = bacaInt("Qty sisa       : ");
             LocalDate tglPemesanan = LocalDate.parse(bacaText("Tgl pemesanan (yyyy-MM-dd)   : "));
@@ -139,6 +140,17 @@ public class product_batch {
             return Double.parseDouble(bacaText(label));
         } catch (NumberFormatException e) {
             return -1;
+        }
+    }
+
+    private static BigDecimal bacaBigDecimal(String label) {
+        try {
+            System.out.print(label);
+            BigDecimal bigDec = in.nextBigDecimal();
+            in.nextLine(); // buang sisa Enter
+            return bigDec;
+        } catch (NumberFormatException e) {
+            return null;
         }
     }
 

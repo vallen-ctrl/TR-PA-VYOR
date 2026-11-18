@@ -51,7 +51,7 @@ public class product_batches extends model {
                     res.getInt("id"),
                     res.getInt("product_id"),
                     res.getInt("supplier_id"),
-                    res.getDouble("harga_beli"),
+                    res.getBigDecimal("harga_beli"),
                     res.getInt("qty"),
                     res.getInt("qty_sisa"),
                     res.getDate("tanggal_pemesanan").toLocalDate(),
