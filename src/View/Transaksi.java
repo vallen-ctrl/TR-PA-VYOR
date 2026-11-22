@@ -10,6 +10,8 @@ import java.time.format.DateTimeFormatter;
 import java.text.NumberFormat;
 import java.util.Locale;
 import java.awt.Color;
+import java.awt.event.KeyEvent;
+import java.time.LocalDate;
 import javax.swing.Timer; // wajib javax.swing, bukan java.util.Timer
 
 /**
@@ -37,22 +39,22 @@ public class Transaksi extends javax.swing.JFrame {
             this.ButtonSetQris.setBackground(Color.decode(HexSelected));
         }
     }
-
+    
+    
     private Timer timerJam;
+    private Locale id = Locale.forLanguageTag("id-ID");
+    private DateTimeFormatter fTanggalJam = DateTimeFormatter.ofPattern("dd-MM-yyyy | HH:mm:ss");
+    private DateTimeFormatter fHari = DateTimeFormatter.ofPattern("EEEE", id);
 
     private void mulaiJam() {
-        Locale id = Locale.forLanguageTag("id-ID");
-        DateTimeFormatter fTanggalJam = DateTimeFormatter.ofPattern("dd-MM-yyyy|HH:mm:ss");
-        DateTimeFormatter fHari = DateTimeFormatter.ofPattern("EEEE", id);
-
-        timerJam = new Timer(1000, e -> {
+        this.timerJam = new Timer(1000, e -> {
             LocalDateTime now = LocalDateTime.now();
 
-            TextDayNow.setText(now.format(fHari));
-            TextDateTimeNow.setText(now.format(fTanggalJam));
+            this.TextDayNow.setText(now.format(fHari));
+            this.TextDateTimeNow.setText(now.format(fTanggalJam));
         });
-        timerJam.setInitialDelay(0); // langsung tampil, tidak menunggu 1 detik
-        timerJam.start();
+        this.timerJam.setInitialDelay(0); // langsung tampil, tidak menunggu 1 detik
+        this.timerJam.start();
     }
 
     private String formatUang(BigDecimal num) {
@@ -64,6 +66,30 @@ public class Transaksi extends javax.swing.JFrame {
         System.out.println("Nilai -> " + formatUang(this.JumlahDibayar));
         this.InputTextUangBayar.setText(formatUang(this.JumlahDibayar));
     }
+    
+    private void lakukanPembayaran(){
+        this.ButtonBayarSekarang.doClick();
+    }
+    
+    private void setupShortcut(){
+        java.awt.KeyboardFocusManager.getCurrentKeyboardFocusManager()
+            .addKeyEventDispatcher((KeyEvent e) -> {
+                LocalDateTime now = LocalDateTime.now();
+                if (e.getID() == java.awt.event.KeyEvent.KEY_PRESSED) {
+                    int keyCode = e.getKeyCode();
+                    
+                    switch(keyCode){
+                        case java.awt.event.KeyEvent.VK_ENTER:
+                                System.out.println("Pembayaran ->"+now.format(this.fTanggalJam));
+                                this.lakukanPembayaran();
+                            break;
+                    }
+                    
+                    return true;
+                }
+                return false;
+        });
+    }
 
     /**
      * Creates new form Transaksi
@@ -71,6 +97,7 @@ public class Transaksi extends javax.swing.JFrame {
     public Transaksi() {
         this.mulaiJam();
         initComponents();
+        this.setupShortcut();
         this.SetMetodePembayaran(this.isTunai);
         this.renderUang();
     }
