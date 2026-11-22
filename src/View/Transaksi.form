@@ -805,8 +805,11 @@
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="jPanel16" alignment="1" max="32767" attributes="0"/>
-                      <Component id="jPanel15" alignment="1" max="32767" attributes="0"/>
                       <Component id="jPanel17" alignment="0" max="32767" attributes="0"/>
+                      <Group type="102" alignment="0" attributes="0">
+                          <Component id="jPanel15" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                      </Group>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
@@ -853,7 +856,7 @@
                                   <Group type="102" attributes="0">
                                       <Component id="jLabel32" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace min="-2" pref="102" max="-2" attributes="0"/>
-                                      <Component id="jLabel37" max="32767" attributes="0"/>
+                                      <Component id="jLabel37" pref="4" max="32767" attributes="0"/>
                                   </Group>
                                   <Group type="102" alignment="1" attributes="0">
                                       <Group type="103" groupAlignment="0" max="-2" attributes="0">
@@ -910,9 +913,9 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="ButtonAdd50K" alignment="3" pref="36" max="32767" attributes="0"/>
-                          <Component id="ButtonBayarUangPas" alignment="3" pref="36" max="32767" attributes="0"/>
-                          <Component id="ButtonAdd10K" alignment="3" pref="36" max="32767" attributes="0"/>
-                          <Component id="ButtonAdd100K" alignment="3" pref="36" max="32767" attributes="0"/>
+                          <Component id="ButtonBayarUangPas" alignment="3" max="32767" attributes="0"/>
+                          <Component id="ButtonAdd10K" alignment="3" max="32767" attributes="0"/>
+                          <Component id="ButtonAdd100K" alignment="3" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jLabel41" min="-2" max="-2" attributes="0"/>
@@ -920,7 +923,7 @@
                       <Component id="InputTextUangBayar" min="-2" pref="58" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="ButtonBayarSekarang" min="-2" pref="43" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="9" max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -1116,7 +1119,7 @@
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
-                      <EmptySpace pref="162" max="32767" attributes="0"/>
+                      <EmptySpace pref="158" max="32767" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="jButton8" alignment="1" min="-2" pref="164" max="-2" attributes="0"/>
                           <Component id="ButtonToProduk" alignment="1" min="-2" pref="164" max="-2" attributes="0"/>

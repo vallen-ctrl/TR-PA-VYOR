@@ -85,7 +85,7 @@ public class produk extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jLabel1.setFont(new java.awt.Font("Liberation Sans", 1, 36)); // NOI18N
-        jLabel1.setText("Manajemen Barang");
+        jLabel1.setText("Detail Barang");
 
         TextDateTimeNow.setFont(new java.awt.Font("Liberation Sans", 1, 36)); // NOI18N
         TextDateTimeNow.setText("12 - 12- 2026 | 00:00:00");
