@@ -32,6 +32,14 @@ public class produk extends javax.swing.JFrame {
         next.setVisible(true);
         this.dispose();
     }
+    
+    private void toSupplier(){
+        supplier next = new supplier();
+        next.setLocation(this.getLocation());
+        next.setSize(this.getSize());
+        next.setVisible(true);
+        this.dispose();
+    }
 
     private void setupShortcut() {
         javax.swing.KeyStroke esc = javax.swing.KeyStroke.getKeyStroke(
@@ -85,7 +93,7 @@ public class produk extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jLabel1.setFont(new java.awt.Font("Liberation Sans", 1, 36)); // NOI18N
-        jLabel1.setText("Detail Barang");
+        jLabel1.setText("Manajemen Barang");
 
         TextDateTimeNow.setFont(new java.awt.Font("Liberation Sans", 1, 36)); // NOI18N
         TextDateTimeNow.setText("12 - 12- 2026 | 00:00:00");
@@ -367,7 +375,7 @@ public class produk extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jToggleButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton2ActionPerformed
-        // TODO add your handling code here:
+        this.toSupplier();
     }//GEN-LAST:event_jToggleButton2ActionPerformed
 
     private void ButtonToTransaksiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonToTransaksiActionPerformed
