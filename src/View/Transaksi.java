@@ -24,7 +24,16 @@ public class Transaksi extends javax.swing.JFrame {
             = NumberFormat.getNumberInstance(Locale.forLanguageTag("id-ID"));
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Transaksi.class.getName());
     private TimeNow TIME;
-
+    
+//  Variabel penampung perhitungan transaksi
+    private BigDecimal subTotal = BigDecimal.ZERO;
+    private BigDecimal pajak = BigDecimal.ZERO;
+    private BigDecimal grandTotal = BigDecimal.ZERO;
+    private Layar2 layarPembeli;
+    private Integer activeCustomerId = null;
+    private Integer activeVoucherId = null;
+    private BigDecimal activeDiskonVoucher = BigDecimal.ZERO;
+    
     private void SetMetodePembayaran(boolean isTunai) {
         this.isTunai = isTunai;
 
@@ -82,21 +91,494 @@ public class Transaksi extends javax.swing.JFrame {
                 e -> this.toProduk(), 
                 enter, 
                 javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW);
+        
+        javax.swing.KeyStroke f4 = javax.swing.KeyStroke.getKeyStroke(
+                java.awt.event.KeyEvent.VK_F4, 0);
+        this.getRootPane().registerKeyboardAction(
+                e -> new RiwayatTransaksi().setVisible(true),
+                f4,
+                javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW
+        );
     }
 
 
+    // =========================================================================
+    // PEMBAYARAN, QRIS, & KALKULASI TOTAL]
+    // Catatan: Pastikan kolom ke-8 (indeks 7) pada JTable 'Tabel'
+    // selalu berisi nilai Total harga per baris agar kalkulasi berjalan otomatis.
+    // =========================================================================
+
+    /**
+     * Menghitung Sub Total dari seluruh baris di JTable, menambahkan Pajak 11%,
+     * dan memperbarui tampilan Grand Total di panel kiri bawah maupun kanan atas.
+     */
+    
+    public void hitungTotalBelanja() {
+        javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) Tabel.getModel();
+        subTotal = BigDecimal.ZERO;
+
+        for (int i = 0; i < model.getRowCount(); i++) {
+            Object valTotal = model.getValueAt(i, 7); // Kolom indeks 7 = "Total"
+            if (valTotal != null) {
+                String clean = valTotal.toString().replaceAll("[^0-9]", "");
+                if (!clean.isEmpty()) {
+                    subTotal = subTotal.add(new BigDecimal(clean));
+                }
+            }
+        }
+
+        // Hitung Pajak 11% (pembulatan ke atas/terdekat) dan Grand Total
+        pajak = subTotal.multiply(new BigDecimal("0.11")).setScale(0, java.math.RoundingMode.HALF_UP);
+        grandTotal = subTotal.add(pajak);
+
+        // Update label ringkasan di panel kiri bawah
+        TextResultSubTotal.setText(formatUang(subTotal));
+        TextResultPajak.setText(formatUang(pajak));
+        jLabel40.setText(formatUang(grandTotal));
+
+        // Update tampilan angka besar di kanan atas (tanpa prefix "Rp. " karena sudah ada di jLabel19)
+        this.nf.setMaximumFractionDigits(0);
+        TextGrandTotal.setText(this.nf.format(grandTotal));
+        if (this.layarPembeli != null) {
+         this.layarPembeli.updateKeranjang(
+                 model,
+                 formatUang(subTotal),
+                 formatUang(pajak),
+                 formatUang(grandTotal)
+         );
+     }
+    }
+
+    /**
+     * Membersihkan keranjang belanja, input member/voucher, dan nominal bayar
+     * setelah transaksi selesai disimpan.
+     */
+    private void resetTransaksi() {
+        javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) Tabel.getModel();
+        model.setRowCount(0);
+        this.JumlahDibayar = BigDecimal.ZERO;
+        this.renderUang();
+        this.InputTextIdMember.setText("");
+        this.InputTextVoucerKode.setText("");
+        this.hitungTotalBelanja();
+        
+        Layar2 targetLayar2 = dapatkanLayarPembeli(false);
+        if (targetLayar2 != null && targetLayar2.isDisplayable()){
+            targetLayar2.resetLayar();
+        }
+    }
+
+    /**
+     * Memvalidasi metode pembayaran yang dipilih kasir (Cash atau QRIS)
+     * saat tombol "Bayar Sekarang" atau tombol Enter ditekan.
+     */
+    private void prosesBayarSekarang() {
+        if (grandTotal.compareTo(BigDecimal.ZERO) <= 0) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Keranjang belanja masih kosong!", "Peringatan", javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if (this.isTunai) {
+            // Alur Pembayaran Tunai (Cash)
+            if (JumlahDibayar.compareTo(grandTotal) < 0) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Uang yang dibayarkan kurang dari Grand Total!", "Pembayaran Gagal", javax.swing.JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            BigDecimal kembalian = JumlahDibayar.subtract(grandTotal);
+            selesaikanTransaksi("CASH", JumlahDibayar, kembalian);
+        } else {
+            // Alur Pembayaran Non-Tunai (Simulasi QRIS)
+            tampilkanDialogQris();
+        }
+    }
+
+    /**
+     * Menampilkan popup simulasi QRIS dengan kode unik, countdown timer 15 menit,
+     * serta tombol simulasi status pembayaran (Berhasil / Gagal).
+     */
+    
+    private void tampilkanDialogQris() {
+        javax.swing.JDialog dialogQris = new javax.swing.JDialog(this, "Pembayaran QRIS", true);
+        dialogQris.setSize(380, 450);
+        dialogQris.setLocationRelativeTo(this);
+        dialogQris.setLayout(new java.awt.BorderLayout(10, 10));
+
+        String kodeQrisUnik = "QRIS-" + System.currentTimeMillis();
+        javax.swing.JLabel lblHeader = new javax.swing.JLabel(
+            "<html><center><h3>Scan QRIS untuk Membayar</h3>" +
+            "Total Tagihan: <b>" + formatUang(grandTotal) + "</b><br>" +
+            "ID Transaksi: " + kodeQrisUnik + "</center></html>",
+            javax.swing.SwingConstants.CENTER
+        );
+
+        // Placeholder visual kode QR unik
+        javax.swing.JLabel lblQrBox = new javax.swing.JLabel(
+            "<html><center><b>[ KODE QR UNIK ]</b><br><br>" + kodeQrisUnik + "</center></html>",
+            javax.swing.SwingConstants.CENTER
+        );
+        lblQrBox.setBorder(javax.swing.BorderFactory.createLineBorder(Color.BLACK, 2));
+
+        // Timer mundur 15 menit (900 detik)
+        javax.swing.JLabel lblTimer = new javax.swing.JLabel("Batas Waktu: 15:00", javax.swing.SwingConstants.CENTER);
+        lblTimer.setFont(new java.awt.Font("Liberation Sans", java.awt.Font.BOLD, 16));
+        lblTimer.setForeground(Color.RED);
+
+        final int[] sisaDetik = {15 * 60};
+        javax.swing.Timer countdown = new javax.swing.Timer(1000, e -> {
+            sisaDetik[0]--;
+            int menit = sisaDetik[0] / 60;
+            int detik = sisaDetik[0] % 60;
+            lblTimer.setText(String.format("Batas Waktu: %02d:%02d", menit, detik));
+            if (sisaDetik[0] <= 0) {
+                ((javax.swing.Timer) e.getSource()).stop();
+                javax.swing.JOptionPane.showMessageDialog(dialogQris, "Waktu pembayaran QRIS habis (Expired)!", "Timeout", javax.swing.JOptionPane.ERROR_MESSAGE);
+                dialogQris.dispose();
+            }
+        });
+        countdown.start();
+
+        // Tombol simulasi untuk demo kasir
+        javax.swing.JPanel panelTombol = new javax.swing.JPanel(new java.awt.GridLayout(1, 2, 10, 0));
+        javax.swing.JButton btnBerhasil = new javax.swing.JButton("Simulasi Berhasil");
+        javax.swing.JButton btnGagal = new javax.swing.JButton("Simulasi Gagal");
+
+        btnBerhasil.addActionListener(e -> {
+            countdown.stop();
+            dialogQris.dispose();
+            selesaikanTransaksi("QRIS", grandTotal, BigDecimal.ZERO);
+        });
+
+        btnGagal.addActionListener(e -> {
+            countdown.stop();
+            dialogQris.dispose();
+            javax.swing.JOptionPane.showMessageDialog(this, "Pembayaran QRIS gagal atau dibatalkan.", "QRIS Gagal", javax.swing.JOptionPane.ERROR_MESSAGE);
+        });
+
+        panelTombol.add(btnBerhasil);
+        panelTombol.add(btnGagal);
+
+        javax.swing.JPanel panelTengah = new javax.swing.JPanel(new java.awt.BorderLayout(5, 5));
+        panelTengah.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        panelTengah.add(lblQrBox, java.awt.BorderLayout.CENTER);
+        panelTengah.add(lblTimer, java.awt.BorderLayout.SOUTH);
+
+        dialogQris.add(lblHeader, java.awt.BorderLayout.NORTH);
+        dialogQris.add(panelTengah, java.awt.BorderLayout.CENTER);
+        dialogQris.add(panelTombol, java.awt.BorderLayout.SOUTH);
+        dialogQris.setVisible(true);
+    }
+
+    /**
+     * Menyelesaikan transaksi setelah pembayaran valid:
+     * 1. Simpan data ke tabel 'transactions' & 'transaction_items' (Modul C)
+     * 2. Kurangi stok produk di database (Integrasi Modul A)
+     * 3. Tandai voucher sebagai terpakai jika menggunakan voucher (Integrasi Modul B)
+     */
+    private void selesaikanTransaksi(String metode, BigDecimal bayar, BigDecimal kembalian) {
+        javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) Tabel.getModel();
+        if (model.getRowCount() == 0) return;
+
+        try {
+            // Ambil ID member jika kasir mengetikkan ID angka di kotak Id Member
+            String teksMember = this.InputTextIdMember.getText().trim().replaceAll("[^0-9]", "");
+            if (!teksMember.isEmpty() && this.activeCustomerId == null) {
+                this.activeCustomerId = Integer.parseInt(teksMember);
+            }
+
+            Model.interfaces.transactionsInterface trx = new Model.interfaces.transactionsInterface(
+                    this.activeCustomerId,
+                    this.activeVoucherId,
+                    this.subTotal,
+                    this.activeDiskonVoucher,
+                    new BigDecimal("11.00"),
+                    this.pajak,
+                    this.grandTotal,
+                    bayar,
+                    kembalian,
+                    "selesai"
+            );
+            trx.kode = "TRX-" + java.time.LocalDateTime.now()
+                    .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+
+            long trxId = new Model.transactions().add(trx);
+            if (trxId <= 0) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Gagal menyimpan transaksi ke database!", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            config.Database db = new config.Database();
+            java.sql.Statement stm = db.start();
+            java.sql.Connection conn = stm.getConnection();
+
+            Model.transaction_items itemModel = new Model.transaction_items();
+            for (int i = 0; i < model.getRowCount(); i++) {
+                String kodeBarang = model.getValueAt(i, 0).toString();
+                String namaBarang = model.getValueAt(i, 1).toString();
+                int qty = Integer.parseInt(model.getValueAt(i, 2).toString());
+                String satuan = model.getValueAt(i, 3).toString();
+
+                // Kolom indeks 6 = "Netto" (harga satuan setelah diskon item)
+                String cleanHarga = model.getValueAt(i, 6).toString().replaceAll("[^0-9]", "");
+                BigDecimal hargaSatuan = cleanHarga.isEmpty() ? BigDecimal.ZERO : new BigDecimal(cleanHarga);
+
+                int productId = 1;
+                try (java.sql.PreparedStatement psCari = conn.prepareStatement(
+                        "SELECT id FROM products WHERE nomor = ? LIMIT 1")) {
+                    psCari.setString(1, kodeBarang);
+                    try (java.sql.ResultSet rs = psCari.executeQuery()) {
+                        if (rs.next()) productId = rs.getInt("id");
+                    }
+                }
+
+                Model.interfaces.transaction_itemInterface item =
+                        new Model.interfaces.transaction_itemInterface(
+                                trxId, productId, kodeBarang, namaBarang, qty, satuan, hargaSatuan
+                        );
+                itemModel.add(item);
+
+                // Kurangi stok produk di database
+                try (java.sql.PreparedStatement psStok = conn.prepareStatement(
+                        "UPDATE products SET stok = stok - ? WHERE id = ?")) {
+                    psStok.setInt(1, qty);
+                    psStok.setInt(2, productId);
+                    psStok.executeUpdate();
+                }
+            }
+
+            // Tandai voucher sebagai 'dipakai' jika ada voucher aktif
+            if (this.activeVoucherId != null) {
+                try (java.sql.PreparedStatement psVoucher = conn.prepareStatement(
+                        "UPDATE vouchers SET status = 'dipakai' WHERE id = ?")) {
+                    psVoucher.setInt(1, this.activeVoucherId);
+                    psVoucher.executeUpdate();
+                }
+            }
+            db.close();
+
+            // Perbarui status pembayaran di Layar 2 (Customer Display)
+            if (this.layarPembeli != null) {
+                this.layarPembeli.updatePembayaran(
+                        metode,
+                        formatUang(bayar),
+                        formatUang(kembalian),
+                        "Pembayaran Berhasil! Terima Kasih."
+                );
+            }
+
+            String pesan = "Transaksi Berhasil Disimpan!\n"
+                    + "No. Nota: " + trx.kode + "\n"
+                    + "Metode: " + metode + "\n"
+                    + "Grand Total: " + formatUang(grandTotal) + "\n"
+                    + "Dibayar: " + formatUang(bayar) + "\n"
+                    + "Kembalian: " + formatUang(kembalian);
+
+            javax.swing.JOptionPane.showMessageDialog(this, pesan, "Sukses", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+
+            this.activeCustomerId = null;
+            this.activeVoucherId = null;
+            this.activeDiskonVoucher = BigDecimal.ZERO;
+            resetTransaksi();
+            if (this.layarPembeli != null) {
+                this.layarPembeli.resetLayar();
+            }
+
+        } catch (Exception ex) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Error menyimpan transaksi: " + ex.getMessage(), "Database Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    private Layar2 dapatkanLayarPembeli(boolean tampilkanJikaBelum) {
+    if (layarPembeli == null && tampilkanJikaBelum) {
+        layarPembeli = new Layar2();
+    }
+    if (layarPembeli != null && tampilkanJikaBelum && !layarPembeli.isVisible()) {
+        layarPembeli.setVisible(true);
+    }
+    return layarPembeli;
+    }
+    
+    
+    
+    private void tambahBarangKeTabel() {
+        String kodeInput = this.kodeBarang.getText().trim();
+        String qtyText = this.jumlahBarang.getText().trim().replaceAll("[^0-9]", "");
+
+        if (kodeInput.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(
+                    this,
+                    "Masukkan kode barang terlebih dahulu!",
+                    "Peringatan",
+                    javax.swing.JOptionPane.WARNING_MESSAGE
+            );
+            this.kodeBarang.requestFocusInWindow();
+            return;
+        }
+
+        int qty = qtyText.isEmpty() ? 0 : Integer.parseInt(qtyText);
+        if (qty <= 0) {
+            javax.swing.JOptionPane.showMessageDialog(
+                    this,
+                    "Jumlah barang harus lebih dari 0!",
+                    "Peringatan",
+                    javax.swing.JOptionPane.WARNING_MESSAGE
+            );
+            this.jumlahBarang.requestFocusInWindow();
+            return;
+        }
+
+        config.Database db = new config.Database();
+        try {
+            java.sql.Statement stm = db.start();
+            java.sql.Connection conn = stm.getConnection();
+
+            String sql = "SELECT nomor, nama, satuan, harga_jual, stok "
+                       + "FROM products WHERE nomor = ? AND dihapus = 0 LIMIT 1";
+
+            try (java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, kodeInput);
+                try (java.sql.ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) {
+                        javax.swing.JOptionPane.showMessageDialog(
+                                this,
+                                "Barang dengan kode/nomor '" + kodeInput + "' tidak ditemukan!",
+                                "Data Tidak Ditemukan",
+                                javax.swing.JOptionPane.WARNING_MESSAGE
+                        );
+                        this.kodeBarang.requestFocusInWindow();
+                        return;
+                    }
+
+                    int stokTersedia = rs.getInt("stok");
+                    if (qty > stokTersedia) {
+                        javax.swing.JOptionPane.showMessageDialog(
+                                this,
+                                "Stok tidak mencukupi! Stok tersedia: " + stokTersedia,
+                                "Stok Kurang",
+                                javax.swing.JOptionPane.WARNING_MESSAGE
+                        );
+                        this.jumlahBarang.requestFocusInWindow();
+                        return;
+                    }
+
+                    String nomorProduk = rs.getString("nomor");
+                    String namaProduk = rs.getString("nama");
+                    String satuanProduk = rs.getString("satuan");
+                    BigDecimal hargaJual = rs.getBigDecimal("harga_jual");
+                    if (hargaJual == null) {
+                        hargaJual = BigDecimal.ZERO;
+                    }
+
+                    // Tampilkan preview di field input sebelah kanan
+                    this.NamaBarang.setText(namaProduk);
+                    this.SatuanBarang.setText(satuanProduk);
+                    this.hargaPersatuan.setText(formatUang(hargaJual));
+
+                    BigDecimal diskonItem = BigDecimal.ZERO;
+                    BigDecimal nettoItem = hargaJual.subtract(diskonItem);
+                    if (nettoItem.compareTo(BigDecimal.ZERO) < 0) {
+                        nettoItem = BigDecimal.ZERO;
+                    }
+                    BigDecimal totalBaris = nettoItem.multiply(BigDecimal.valueOf(qty));
+                    this.jTextField9.setText(formatUang(totalBaris));
+
+                    javax.swing.table.DefaultTableModel model =
+                            (javax.swing.table.DefaultTableModel) this.Tabel.getModel();
+
+                    // Kolom 0..7: Kode, Nama, Jumlah, Satuan, Harga, Diskon, Netto, Total
+                    model.addRow(new Object[]{
+                        nomorProduk,
+                        namaProduk,
+                        qty,
+                        satuanProduk,
+                        formatUang(hargaJual),
+                        formatUang(diskonItem),
+                        formatUang(nettoItem),
+                        formatUang(totalBaris)
+                    });
+
+                    // Reset field input barang untuk item berikutnya
+                    this.kodeBarang.setText("");
+                    this.jumlahBarang.setText("0");
+                    this.kodeBarang.requestFocusInWindow();
+                }
+            }
+        } catch (Exception ex) {
+            javax.swing.JOptionPane.showMessageDialog(
+                    this,
+                    "Gagal mengambil data barang: " + ex.getMessage(),
+                    "Database Error",
+                    javax.swing.JOptionPane.ERROR_MESSAGE
+            );
+        } finally {
+            try {
+                if (db != null) {
+                    db.close();
+                }
+            } catch (java.sql.SQLException ex) {
+                logger.log(java.util.logging.Level.SEVERE, null, ex);
+            }
+        }
+    }
+    
+    
+    
+    
     /**
      * Creates new form Transaksi
      */
     public Transaksi() {
         initComponents();
+        
+        
+//      Membungkus konten form dengan JScrollPane agar panel pembayaran di bagian
+//      bawah dapat di-scroll pada layar resolusi standar, sekaligus memaksa lebar
+//      form mengikuti lebar layar agar komponen di sisi kanan tidak terpotong.
+        java.awt.Container content = this.getContentPane();
+        javax.swing.JPanel wrapper = new javax.swing.JPanel(new java.awt.BorderLayout()) {
+            @Override
+            public java.awt.Dimension getPreferredSize() {
+                java.awt.Dimension d = super.getPreferredSize();
+                if (getParent() instanceof javax.swing.JViewport) {
+                    d.width = getParent().getWidth();
+                }
+                return d;
+            }
+        };
+        wrapper.add(content, java.awt.BorderLayout.CENTER);
+
+        javax.swing.JScrollPane mainScroll = new javax.swing.JScrollPane(wrapper);
+        mainScroll.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        mainScroll.getVerticalScrollBar().setUnitIncrement(16);
+        this.setContentPane(mainScroll);
+        this.setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
+        
         this.TIME = new TimeNow();
         this.mulaiJam();
         this.setupShortcut();
         this.SetMetodePembayaran(this.isTunai);
         this.renderUang();
+        
+        
+//      kosongkan baris dummy bawaan NeatBeans pada JTable saat aplikasi baru dibuka
+        javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) Tabel.getModel();
+        model.setRowCount(0);
+        
+//      Listener otomatis: setiap ada barang ditambah/diubah oleh Modul A atau diskon oleh Modul B,
+//      fungsi hitungTotalBelanja() akan otomatis dijalankan.
+        model.addTableModelListener(e -> hitungTotalBelanja());
+        
+        this.kodeBarang.addActionListener(e -> tambahBarangKeTabel());
+        this.jumlahBarang.addActionListener(e -> tambahBarangKeTabel());
+        
+//      Menghubungkan tombol "Bayar Sekarang" ke proses pembayaran (Cash / QRIS)
+        this.ButtonBayarSekarang.addActionListener(e -> prosesBayarSekarang());
+        
+        // Reset angka awal 0.000.000 menjadi 0 saat aplikasi pertama kali dibuka
+        this.layarPembeli = new Layar2();
+        this.layarPembeli.setVisible(true);
+        this.hitungTotalBelanja();
     }
-
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -186,7 +668,6 @@ public class Transaksi extends javax.swing.JFrame {
         jButton10 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setPreferredSize(new java.awt.Dimension(1280, 720));
 
         jPanel2.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
@@ -779,6 +1260,7 @@ public class Transaksi extends javax.swing.JFrame {
         );
 
         jButton8.setText("Transaksi \n(F1)");
+        jButton8.addActionListener(this::jButton8ActionPerformed);
 
         ButtonToProduk.setText("Produk (F2)");
         ButtonToProduk.addActionListener(this::ButtonToProdukActionPerformed);
@@ -884,7 +1366,9 @@ public class Transaksi extends javax.swing.JFrame {
     }//GEN-LAST:event_jTextField9ActionPerformed
 
     private void ButtonBayarUangPasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonBayarUangPasActionPerformed
-        // TODO add your handling code here:
+//  Mengisi otomatis nominal bayar sesuai Grand Total saat tombol "Uang Pas" diklik
+        this.JumlahDibayar = this.grandTotal;
+        this.renderUang();
     }//GEN-LAST:event_ButtonBayarUangPasActionPerformed
 
     private void ButtonAdd10KActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonAdd10KActionPerformed
@@ -924,6 +1408,10 @@ public class Transaksi extends javax.swing.JFrame {
     private void ButtonToProdukActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonToProdukActionPerformed
         this.toProduk();
     }//GEN-LAST:event_ButtonToProdukActionPerformed
+
+    private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
+        new RiwayatTransaksi().setVisible(true);
+    }//GEN-LAST:event_jButton8ActionPerformed
 
     /**
      * @param args the command line arguments

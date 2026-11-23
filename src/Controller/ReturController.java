@@ -13,11 +13,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -243,8 +245,13 @@ public class ReturController {
                 voucherKembali = ps.executeUpdate() > 0;
             }
         }
-
-        String pesan = "Retur #" + returId + " tersimpan. Total refund: Rp. " + refund.toPlainString()
+        
+        NumberFormat nfRefund = NumberFormat.getNumberInstance(Locale.forLanguageTag("id-ID"));
+        nfRefund.setMaximumFractionDigits(0);
+        nfRefund.setRoundingMode(RoundingMode.HALF_UP);
+        String refundFormatted = nfRefund.format(refund == null ? BigDecimal.ZERO : refund);
+        
+        String pesan = "Retur #" + returId + " tersimpan. Total refund: Rp. " + refundFormatted
                 + ". Status transaksi: " + statusBaru + "."
                 + (voucherKembali ? " Voucher dikembalikan." : "");
         return new HasilRetur(true, pesan, returId, refund, statusBaru, voucherKembali);
