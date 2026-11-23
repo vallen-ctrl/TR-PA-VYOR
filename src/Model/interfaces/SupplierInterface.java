@@ -13,7 +13,14 @@ public class SupplierInterface{
     public String nama;
     public String alamat;
     public String nomorHp;
-    public int dihapus;
+    public Integer dihapus;
+
+    public SupplierInterface(int id, String nama, String alamat, String nomorHp) {
+        this.id = id;
+        this.nama = nama;
+        this.alamat = alamat;
+        this.nomorHp = nomorHp;
+    }
 
     public SupplierInterface(String nama, String alamat, String nomorHp) {
         this.nama = nama;
