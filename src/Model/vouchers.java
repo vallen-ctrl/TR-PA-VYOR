@@ -48,4 +48,8 @@ public class vouchers extends model {
         }
         return -1;
     }
+
+    public int tandaiDipakai(int voucherId) throws SQLException {
+        return this.updateOnce("status", "dipakai").where("id = " + voucherId).execute();
+    }
 }

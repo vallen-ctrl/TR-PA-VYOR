@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Model;
 
 import Model.interfaces.categoriesInterface;
@@ -37,6 +33,11 @@ public class products extends model {
 
     public int remove(int Product) throws SQLException {
         return this.updateOnce("dihapus", "1").where("id = " + Product).execute();
+    }
+
+    public int kurangiStok(int productId, int qty) throws SQLException {
+        String sql = "UPDATE products SET stok = stok - " + qty + " WHERE id = " + productId;
+        return this.setQuery(sql).execute();
     }
 
     public List<productInterface> getAll() throws SQLException {

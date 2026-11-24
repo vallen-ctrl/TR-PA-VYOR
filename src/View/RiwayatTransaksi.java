@@ -9,8 +9,7 @@ import Controller.ReturController.HasilRetur;
 import Controller.ReturController.ItemRetur;
 import Model.interfaces.transaction_itemInterface;
 import Model.interfaces.transactionsInterface;
-import Model.transaction_items;
-import Model.transactions;
+import Controller.TransaksiController;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
@@ -36,7 +35,8 @@ import javax.swing.table.DefaultTableModel;
 public class RiwayatTransaksi extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(RiwayatTransaksi.class.getName());
-
+    private final TransaksiController transaksiController = new TransaksiController();
+    
     /**
      * Creates new form RiwayatTransaksi
      */
@@ -89,8 +89,7 @@ public class RiwayatTransaksi extends javax.swing.JFrame {
         model.setRowCount(0);
         ((DefaultTableModel) TabelDetailItem.getModel()).setRowCount(0);
 
-        transactions trxModel = new transactions();
-        daftarAktif = trxModel.daftar(status, tanggal, tanggal, customerId, 200, 0);
+        daftarAktif = transaksiController.daftarTransaksi(status, tanggal, tanggal, customerId, 200, 0);
 
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
         for (transactionsInterface t : daftarAktif) {
@@ -143,7 +142,7 @@ public class RiwayatTransaksi extends javax.swing.JFrame {
         if (row < 0 || row >= daftarAktif.size()) return;
 
         transactionsInterface trx = daftarAktif.get(row);
-        detailAktif = new transaction_items().byTransaksi(trx.id);
+        detailAktif = transaksiController.detailItemTransaksi(trx.id);
 
         for (transaction_itemInterface item : detailAktif) {
             modelDetail.addRow(new Object[]{
