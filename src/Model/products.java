@@ -15,15 +15,16 @@ import java.sql.ResultSet;
  *
  * @author vallen
  */
-public class products extends model{
-    public int add(productInterface product) throws SQLException{
+public class products extends model {
+
+    public int add(productInterface product) throws SQLException {
         String[] Column = {
             "nomor", "nama", "category_id",
             "supplier_id", "satuan", "harga_beli",
             "harga_jual", "stok", "terakhir_disuplai",
             "dihapus"
         };
-        
+
         String[] Values = {
             product.nomor, product.nama, product.category_id.toString(),
             product.supplier_id.toString(), product.satuan, product.harga_beli.toString(),
@@ -32,24 +33,24 @@ public class products extends model{
         };
         return this.insert(Column, Values).execute();
     }
-    
-    public int remove(int Product) throws SQLException{
-        return this.updateOnce("dihapus", "1").where("id = "+Product).execute();
+
+    public int remove(int Product) throws SQLException {
+        return this.updateOnce("dihapus", "1").where("id = " + Product).execute();
     }
-    
-    public List<productInterface> getAll(int limit, int offset) throws SQLException{
+
+    public List<productInterface> getAll() throws SQLException {
         List<productInterface> product = new ArrayList<>();
-       
+
         ResultSet res = this.select(
-                "products.id", "products.nomor", "products.nama","c.nama as categories","products.category_id", "s.nama as supplier","products.supplier_id", "products.satuan", "products.harga_beli",
+                "products.id", "products.nomor", "products.nama", "c.nama as categories", "products.category_id", "s.nama as supplier", "products.supplier_id", "products.satuan", "products.harga_beli",
                 "products.harga_jual", "products.stok", "products.terakhir_disuplai", "products.dihapus"
-        ).setLimit(limit).setOffset(offset)
-                .leftJoin("categories c","c.id = products.category_id")
+        )
+                .leftJoin("categories c", "c.id = products.category_id")
                 .leftJoin("suppliers s", "s.id = products.supplier_id")
                 .where("products.dihapus = 0")
                 .run();
-        
-        while(res.next()){
+
+        while (res.next()) {
             product.add(new productInterface(
                     res.getInt("id"),
                     res.getString("nomor"),
@@ -66,7 +67,7 @@ public class products extends model{
                     res.getString("supplier")
             ));
         }
-        
+
         return product;
     }
 }

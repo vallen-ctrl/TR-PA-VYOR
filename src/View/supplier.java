@@ -6,6 +6,15 @@ package View;
 
 import java.awt.event.KeyEvent;
 import utils.TimeNow;
+import View.components.ModalAddOrEditSupplier;
+import javax.swing.JDialog;
+import javax.swing.table.DefaultTableModel;
+import Controller.SupplierControler;
+import Model.interfaces.SupplierInterface;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.ArrayList;
+import javax.swing.event.TableModelEvent;
 
 /**
  *
@@ -15,6 +24,8 @@ public class supplier extends javax.swing.JFrame {
 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(supplier.class.getName());
     private TimeNow TIME = new TimeNow();
+    private DefaultTableModel model;
+    private SupplierControler supplierControler = new SupplierControler();
 
     /**
      * Creates new form produk
@@ -23,6 +34,9 @@ public class supplier extends javax.swing.JFrame {
         initComponents();
         TIME.startTime(this.TextDateTimeNow, this.TextDayNow);
         this.setupShortcut();
+        this.model = (DefaultTableModel) this.TabelSupplier.getModel();
+        this.RenderTabel();
+        this.setupTabelListener();
     }
 
     private void toproduk() {
@@ -31,6 +45,33 @@ public class supplier extends javax.swing.JFrame {
         next.setSize(this.getSize());
         next.setVisible(true);
         this.dispose();
+    }
+
+    private void setupTabelListener() {
+        this.model.addTableModelListener(Event -> {
+            if (Event.getType() == TableModelEvent.UPDATE) {
+                int row = Event.getFirstRow();
+                if (row >= 0) {
+
+                    Object[] semuaNilai = new Object[this.model.getColumnCount()];
+                    for (int i = 0; i < semuaNilai.length; i++) {
+                        semuaNilai[i] = this.model.getValueAt(row, i);
+                    }
+
+                    int id = Integer.parseInt(String.valueOf(semuaNilai[0]));
+                    String nama = String.valueOf(semuaNilai[1]);
+                    String alamat = String.valueOf(semuaNilai[2]);
+                    String nomor_hp = String.valueOf(semuaNilai[3]);
+                    
+                    try {
+                        this.supplierControler.updateSupplier(new SupplierInterface(id, nama, alamat, nomor_hp));
+                        // simpan ke DB di sini
+                    } catch (SQLException ex) {
+                        System.getLogger(supplier.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+                    }
+                }
+            }
+        });
     }
 
     private void setupShortcut() {
@@ -42,6 +83,17 @@ public class supplier extends javax.swing.JFrame {
                 esc,
                 javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW
         );
+    }
+
+    private void RenderTabel() {
+        this.model.setRowCount(0);
+        try {
+            for (SupplierInterface suply : this.supplierControler.getAll()) {
+                this.model.addRow(new Object[]{suply.id, suply.nama, suply.alamat, suply.nomorHp});
+            }
+        } catch (SQLException ex) {
+            System.getLogger(supplier.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
     }
 
     /**
@@ -58,9 +110,9 @@ public class supplier extends javax.swing.JFrame {
         TextDateTimeNow = new javax.swing.JLabel();
         TextDayNow = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        TabelSupplier = new javax.swing.JTable();
         jPanel6 = new javax.swing.JPanel();
-        jToggleButton2 = new javax.swing.JToggleButton();
+        ButtonToAddSupplier = new javax.swing.JToggleButton();
         ButtonToTransaksi = new javax.swing.JToggleButton();
         jPanel2 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
@@ -107,7 +159,7 @@ public class supplier extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        TabelSupplier.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -115,16 +167,24 @@ public class supplier extends javax.swing.JFrame {
                 {null, null, null, null}
             },
             new String [] {
-                "Nomor Unik", "Nama Supplier", "Alamat", "Nomor Hp"
+                "Nomor", "Nama Supplier", "Alamat", "Nomor Hp"
             }
-        ));
-        jScrollPane1.setViewportView(jTable1);
-        if (jTable1.getColumnModel().getColumnCount() > 0) {
-            jTable1.getColumnModel().getColumn(0).setMaxWidth(120);
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, true, true, true
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(TabelSupplier);
+        if (TabelSupplier.getColumnModel().getColumnCount() > 0) {
+            TabelSupplier.getColumnModel().getColumn(0).setMaxWidth(100);
         }
 
-        jToggleButton2.setText("Tambah Supplier");
-        jToggleButton2.addActionListener(this::jToggleButton2ActionPerformed);
+        ButtonToAddSupplier.setText("Tambah Supplier");
+        ButtonToAddSupplier.addActionListener(this::ButtonToAddSupplierActionPerformed);
 
         ButtonToTransaksi.setText("Kembali (esc)");
         ButtonToTransaksi.addActionListener(this::ButtonToTransaksiActionPerformed);
@@ -137,7 +197,7 @@ public class supplier extends javax.swing.JFrame {
                 .addGap(16, 16, 16)
                 .addComponent(ButtonToTransaksi, javax.swing.GroupLayout.DEFAULT_SIZE, 581, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 70, Short.MAX_VALUE)
-                .addComponent(jToggleButton2, javax.swing.GroupLayout.DEFAULT_SIZE, 586, Short.MAX_VALUE)
+                .addComponent(ButtonToAddSupplier, javax.swing.GroupLayout.DEFAULT_SIZE, 586, Short.MAX_VALUE)
                 .addGap(15, 15, 15))
         );
         jPanel6Layout.setVerticalGroup(
@@ -146,7 +206,7 @@ public class supplier extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(ButtonToTransaksi, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jToggleButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(ButtonToAddSupplier, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(9, Short.MAX_VALUE))
         );
 
@@ -224,9 +284,16 @@ public class supplier extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jToggleButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jToggleButton2ActionPerformed
+    private void ButtonToAddSupplierActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonToAddSupplierActionPerformed
+        ModalAddOrEditSupplier modal = new ModalAddOrEditSupplier();
+        JDialog dialog = new JDialog(this, "Tambah supplier", true);
+        dialog.setContentPane(modal);
+        dialog.pack();
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+        
+        this.RenderTabel();
+    }//GEN-LAST:event_ButtonToAddSupplierActionPerformed
 
     private void ButtonToTransaksiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonToTransaksiActionPerformed
         this.toproduk();
@@ -258,7 +325,9 @@ public class supplier extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JToggleButton ButtonToAddSupplier;
     private javax.swing.JToggleButton ButtonToTransaksi;
+    private javax.swing.JTable TabelSupplier;
     private javax.swing.JLabel TextDateTimeNow;
     private javax.swing.JLabel TextDayNow;
     private javax.swing.JLabel jLabel1;
@@ -268,8 +337,6 @@ public class supplier extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
     private javax.swing.JTextField jTextField1;
-    private javax.swing.JToggleButton jToggleButton2;
     // End of variables declaration//GEN-END:variables
 }

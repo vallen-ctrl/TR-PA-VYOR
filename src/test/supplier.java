@@ -66,7 +66,7 @@ public class supplier {
             int halaman = Math.max(1, bacaInt("Halaman (mulai 1): "));
             int offset = (halaman - 1) * limit;
 
-            List<SupplierInterface> data = supplier.get(limit, offset);
+            List<SupplierInterface> data = supplier.get();
             if (data.isEmpty()) {
                 System.out.println("Data kosong.");
                 return;

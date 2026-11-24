@@ -5,7 +5,7 @@ package utils;
  * @author jein
  */
 public class Ean {
-
+    
     // ean13 = true: ganjil x1, genap x3 | ean13 = false (EAN-8): ganjil x3, genap x1
     private int hitungCheck(String payload, boolean ean13) {
         int total = 0;

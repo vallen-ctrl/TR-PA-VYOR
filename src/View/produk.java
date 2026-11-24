@@ -5,7 +5,13 @@
 package View;
 
 import java.awt.event.KeyEvent;
+import javax.swing.JDialog;
 import utils.TimeNow;
+import View.components.AddBarang;
+import javax.swing.table.DefaultTableModel;
+import Controller.ProdukController;
+import Model.interfaces.productInterface;
+import java.sql.SQLException;
 
 /**
  *
@@ -15,6 +21,23 @@ public class produk extends javax.swing.JFrame {
 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(produk.class.getName());
     private TimeNow TIME = new TimeNow();
+    private DefaultTableModel model;
+    private ProdukController produkController = new ProdukController();
+
+    private void renderTabel() {
+        this.model.setRowCount(0);
+        try {
+            for (productInterface prod : this.produkController.get()) {
+                this.model.addRow(
+                        new Object[]{prod.nomor, prod.nama, prod.String_categories, 
+                            prod.stok, prod.satuan, prod.harga_jual, 
+                            prod.String_supplier, prod.terakhir_disuppli.toString()}
+                );
+            }
+        } catch (SQLException ex) {
+            System.getLogger(produk.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
+    }
 
     /**
      * Creates new form produk
@@ -23,6 +46,8 @@ public class produk extends javax.swing.JFrame {
         initComponents();
         TIME.startTime(this.TextDateTimeNow, this.TextDayNow);
         this.setupShortcut();
+        this.model = (DefaultTableModel) this.TabelProduk.getModel();
+        this.renderTabel();
     }
 
     private void toTransaksi() {
@@ -32,8 +57,8 @@ public class produk extends javax.swing.JFrame {
         next.setVisible(true);
         this.dispose();
     }
-    
-    private void toSupplier(){
+
+    private void toSupplier() {
         supplier next = new supplier();
         next.setLocation(this.getLocation());
         next.setSize(this.getSize());
@@ -84,7 +109,7 @@ public class produk extends javax.swing.JFrame {
         jLabel14 = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        TabelProduk = new javax.swing.JTable();
         jPanel6 = new javax.swing.JPanel();
         jToggleButton2 = new javax.swing.JToggleButton();
         ButtonToTransaksi = new javax.swing.JToggleButton();
@@ -295,21 +320,29 @@ public class produk extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        TabelProduk.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "Nomor", "Nama", "Kategori", "Stok", "Satuan", "Harga Jual", "Supplier", "Terakhir diSupply", "Mendekati Kadaluarsa"
+                "Nomor", "Nama", "Kategori", "Stok", "Satuan", "Harga Jual", "Supplier", "Terakhir diSupply"
             }
-        ));
-        jScrollPane1.setViewportView(jTable1);
-        if (jTable1.getColumnModel().getColumnCount() > 0) {
-            jTable1.getColumnModel().getColumn(3).setMaxWidth(50);
-            jTable1.getColumnModel().getColumn(4).setMaxWidth(60);
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, true, true, false, true, true, true, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(TabelProduk);
+        if (TabelProduk.getColumnModel().getColumnCount() > 0) {
+            TabelProduk.getColumnModel().getColumn(3).setMaxWidth(50);
+            TabelProduk.getColumnModel().getColumn(4).setMaxWidth(60);
         }
 
         jToggleButton2.setText("Lihat Supplier (F2)");
@@ -319,6 +352,7 @@ public class produk extends javax.swing.JFrame {
         ButtonToTransaksi.addActionListener(this::ButtonToTransaksiActionPerformed);
 
         jToggleButton1.setText("Tambah Barang (F1)");
+        jToggleButton1.addActionListener(this::jToggleButton1ActionPerformed);
 
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
@@ -382,6 +416,15 @@ public class produk extends javax.swing.JFrame {
         this.toTransaksi();
     }//GEN-LAST:event_ButtonToTransaksiActionPerformed
 
+    private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
+        AddBarang panel = new AddBarang();
+        JDialog modal = new JDialog(this, "Tambah Barang", true);
+        modal.setContentPane(panel);
+        modal.pack();
+        modal.setLocationRelativeTo(this);
+        modal.setVisible(true);
+    }//GEN-LAST:event_jToggleButton1ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -409,6 +452,7 @@ public class produk extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton ButtonToTransaksi;
+    private javax.swing.JTable TabelProduk;
     private javax.swing.JLabel TextDateTimeNow;
     private javax.swing.JLabel TextDayNow;
     private javax.swing.JComboBox<String> jComboBox1;
@@ -432,7 +476,6 @@ public class produk extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JToggleButton jToggleButton1;
     private javax.swing.JToggleButton jToggleButton2;
