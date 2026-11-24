@@ -98,28 +98,28 @@ public class product_batch {
 
     // READ
     private static void lihat() {
-        try {
-            int limit = 10;
-            int halaman = Math.max(1, bacaInt("Halaman (mulai 1): "));
-            int offset = (halaman - 1) * limit;
-
-            List<product_batchInterface> data = product_batch.get(limit, offset);
-            if (data.isEmpty()) {
-                System.out.println("Data kosong.");
-                return;
-            }
-
-            System.out.printf("%-4s %-9s %-11s %-12s %-6s %-9s %-12s %-12s %-12s %-10s%n",
-                    "ID", "Supplier", "Product", "Harga Beli", "Qty", "Qty Sisa",
-                    "Pemesanan", "Masuk", "Kadaluarsa", "Ditangani");
-            for (product_batchInterface b : data) {
-                System.out.printf("%-4d %-9d %-11d %-12.2f %-6d %-9d %-12s %-12s %-12s %-10s%n",
-                        b.id, b.supplier_id, b.product_id, b.harga_beli, b.qty, b.qty_sisa,
-                        b.tanggal_pemesanan, b.tanggal_masuk, b.tanggal_kadaluarsa, b.ditangani);
-            }
-        } catch (Exception e) {
-            System.out.println("Gagal melihat batch: " + e.getMessage());
-        }
+//        try {
+//            int limit = 10;
+//            int halaman = Math.max(1, bacaInt("Halaman (mulai 1): "));
+//            int offset = (halaman - 1) * limit;
+//
+//            List<product_batchInterface> data = product_batch.get();
+//            if (data.isEmpty()) {
+//                System.out.println("Data kosong.");
+//                return;
+//            }
+//
+//            System.out.printf("%-4s %-9s %-11s %-12s %-6s %-9s %-12s %-12s %-12s %-10s%n",
+//                    "ID", "Supplier", "Product", "Harga Beli", "Qty", "Qty Sisa",
+//                    "Pemesanan", "Masuk", "Kadaluarsa", "Ditangani");
+//            for (product_batchInterface b : data) {
+//                System.out.printf("%-4d %-9d %-11d %-12.2f %-6d %-9d %-12s %-12s %-12s %-10s%n",
+//                        b.id, b.supplier_id, b.product_id, b.harga_beli, b.qty, b.qty_sisa,
+//                        b.tanggal_pemesanan, b.tanggal_masuk, b.tanggal_kadaluarsa, b.ditangani);
+//            }
+//        } catch (Exception e) {
+//            System.out.println("Gagal melihat batch: " + e.getMessage());
+//        }
     }
 
     private static String bacaText(String label) {

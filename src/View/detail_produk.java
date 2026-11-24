@@ -12,6 +12,8 @@ import Model.interfaces.product_batchInterface;
 import java.sql.SQLException;
 import java.time.temporal.ChronoUnit;
 import Model.interfaces.productInterface;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  *
@@ -24,12 +26,14 @@ public class detail_produk extends javax.swing.JFrame {
     private DefaultTableModel model;
     private DetailProdukController detControler = new DetailProdukController();
     private String nomorProduk;
-    private productInterface getproduk;
+    private productInterface getproduk = null;
+    private List<product_batchInterface> batch = null;
     
     private void renderTabel(){
         this.model.setRowCount(0);
         try {
-            for(product_batchInterface items : this.detControler.getBatches(this.getproduk.id)){
+            this.batch = this.detControler.getBatches(this.getproduk.id);
+            for(product_batchInterface items : this.batch){
                 int lamaPerjalanan = (int) ChronoUnit.DAYS.between(items.tanggal_pemesanan, items.tanggal_masuk);
                 this.model.addRow(
                         new Object[] {items.tanggal_masuk.toString(), items.tanggal_pemesanan.toString(),
@@ -41,6 +45,12 @@ public class detail_produk extends javax.swing.JFrame {
                 } catch (SQLException ex) {
             System.getLogger(detail_produk.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }
+    }
+    
+    private void initComponentsText(){
+        this.InputTextNomorBarang.setText(this.nomorProduk);
+        this.InputTextNama.setText(this.getproduk.nama);
+        this.InputTextHargaJual.setText(this.getproduk.harga_jual.toString());
     }
 
     /**
@@ -104,15 +114,13 @@ public class detail_produk extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
-        jLabel17 = new javax.swing.JLabel();
         jLabel18 = new javax.swing.JLabel();
         jLabel19 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
-        jTextField3 = new javax.swing.JTextField();
-        jTextField4 = new javax.swing.JTextField();
-        jLabel20 = new javax.swing.JLabel();
-        jLabel21 = new javax.swing.JLabel();
-        jLabel22 = new javax.swing.JLabel();
+        InputTextNomorBarang = new javax.swing.JTextField();
+        InputTextNama = new javax.swing.JTextField();
+        InputTextHargaJual = new javax.swing.JTextField();
+        ChangeTextPotensiPemasukan = new javax.swing.JLabel();
+        ChangeTextStrokSekarang = new javax.swing.JLabel();
         jPanel9 = new javax.swing.JPanel();
         jLabel23 = new javax.swing.JLabel();
         jLabel24 = new javax.swing.JLabel();
@@ -148,23 +156,19 @@ public class detail_produk extends javax.swing.JFrame {
 
         jLabel16.setText("Harga Jual");
 
-        jLabel17.setText("Rata-rata Harga Beli:");
-
         jLabel18.setText("Potensi pemasukan:");
 
         jLabel19.setText("Stok sekarang:");
 
-        jTextField2.setText("-");
+        InputTextNomorBarang.setText("-");
 
-        jTextField3.setText("-");
+        InputTextNama.setText("-");
 
-        jTextField4.setText("-");
+        InputTextHargaJual.setText("-");
 
-        jLabel20.setText("Rp -");
+        ChangeTextPotensiPemasukan.setText("Rp -");
 
-        jLabel21.setText("Rp -");
-
-        jLabel22.setText("00");
+        ChangeTextStrokSekarang.setText("00");
 
         javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
         jPanel8.setLayout(jPanel8Layout);
@@ -173,23 +177,21 @@ public class detail_produk extends javax.swing.JFrame {
             .addGroup(jPanel8Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jLabel17, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel16, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel19, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel18, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jLabel18, javax.swing.GroupLayout.DEFAULT_SIZE, 136, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel8Layout.createSequentialGroup()
                         .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jTextField2)
-                            .addComponent(jTextField3)
-                            .addComponent(jTextField4)
-                            .addComponent(jLabel20, javax.swing.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE))
+                            .addComponent(InputTextNomorBarang, javax.swing.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE)
+                            .addComponent(InputTextNama)
+                            .addComponent(InputTextHargaJual))
                         .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jLabel21, javax.swing.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE)
-                    .addComponent(jLabel22, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE))
+                    .addComponent(ChangeTextPotensiPemasukan, javax.swing.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE)
+                    .addComponent(ChangeTextStrokSekarang, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel8Layout.setVerticalGroup(
@@ -197,28 +199,24 @@ public class detail_produk extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel8Layout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jTextField2)
+                    .addComponent(InputTextNomorBarang)
                     .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField3))
+                    .addComponent(InputTextNama))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField4))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel17)
-                    .addComponent(jLabel20))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(InputTextHargaJual))
+                .addGap(30, 30, 30)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel18)
-                    .addComponent(jLabel21))
+                    .addComponent(ChangeTextPotensiPemasukan))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel19)
-                    .addComponent(jLabel22)))
+                    .addComponent(ChangeTextStrokSekarang)))
         );
 
         jLabel23.setText("Supplier Terakhir:");
@@ -447,18 +445,19 @@ public class detail_produk extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton ButtonToTransaksi;
+    private javax.swing.JLabel ChangeTextPotensiPemasukan;
+    private javax.swing.JLabel ChangeTextStrokSekarang;
+    private javax.swing.JTextField InputTextHargaJual;
+    private javax.swing.JTextField InputTextNama;
+    private javax.swing.JTextField InputTextNomorBarang;
     private javax.swing.JTable TabelBatches;
     private javax.swing.JLabel TextDateTimeNow;
     private javax.swing.JLabel TextDayNow;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel16;
-    private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel20;
-    private javax.swing.JLabel jLabel21;
-    private javax.swing.JLabel jLabel22;
     private javax.swing.JLabel jLabel23;
     private javax.swing.JLabel jLabel24;
     private javax.swing.JLabel jLabel25;
@@ -475,9 +474,6 @@ public class detail_produk extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel8;
     private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
     private javax.swing.JToggleButton jToggleButton1;
     private javax.swing.JToggleButton jToggleButton2;
     // End of variables declaration//GEN-END:variables

@@ -73,10 +73,10 @@ public class products extends model {
         }
 
         try {
-            if (!res.next()) {
-                return null; // produk tidak ditemukan
+            if (res.next()) {
+                return this.mapping(res);
             }
-            return this.mapping(res);
+            return null; // produk tidak ditemukan
         } finally {
             res.close();
         }

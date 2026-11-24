@@ -78,7 +78,7 @@ public class category {
             int halaman = Math.max(1, bacaInt("Halaman (mulai 1): "));
             int offset = (halaman - 1) * limit;
 
-            List<categoriesInterface> data = category.get(limit, offset);
+            List<categoriesInterface> data = category.get();
             if (data.isEmpty()) {
                 System.out.println("Data kosong.");
                 return;

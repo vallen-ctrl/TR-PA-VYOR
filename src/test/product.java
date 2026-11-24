@@ -90,7 +90,7 @@ public class product {
             int halaman = Math.max(1, bacaInt("Halaman (mulai 1): "));
             int offset = (halaman - 1) * limit;
 
-            List<productInterface> data = product.getAll(limit, offset);
+            List<productInterface> data = product.getAll();
             if (data.isEmpty()) {
                 System.out.println("Data kosong.");
                 return;
