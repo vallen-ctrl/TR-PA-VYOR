@@ -4,9 +4,10 @@
  */
 package Controller;
 import java.util.List;
-import java.util.ArrayList;
 import Model.products;
 import Model.interfaces.productInterface;
+import Model.interfaces.categoriesInterface;
+import Model.categories;
 import java.sql.SQLException;
 /**
  *
@@ -14,11 +15,16 @@ import java.sql.SQLException;
  */
 public class ProdukController {
     private products prod = new products();
+    private categories kategori = new categories(); 
     public List<productInterface> get() throws SQLException{
         return prod.getAll();
     }
     
     public int AddProduct(productInterface insertProduk) throws SQLException{
         return this.prod.add(insertProduk);
+    }
+    
+    public List<categoriesInterface> getCategories() throws SQLException{
+        return this.kategori.get();
     }
 }

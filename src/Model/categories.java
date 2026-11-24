@@ -26,9 +26,9 @@ public class categories extends model {
         return this.updateOnce("dihapus", "1").where("id = "+categoriesid).execute();
     }
     
-    public List<categoriesInterface> get(int limit, int offset) throws SQLException{
+    public List<categoriesInterface> get() throws SQLException{
         List<categoriesInterface> categoris = new ArrayList<>();
-        ResultSet res = this.select().setLimit(limit).setOffset(offset).run();
+        ResultSet res = this.select().run();
         
         while(res.next()){
             categoris.add(new categoriesInterface(

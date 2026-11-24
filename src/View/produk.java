@@ -12,6 +12,7 @@ import javax.swing.table.DefaultTableModel;
 import Controller.ProdukController;
 import Model.interfaces.productInterface;
 import java.sql.SQLException;
+import Model.interfaces.categoriesInterface;
 
 /**
  *
@@ -38,6 +39,18 @@ public class produk extends javax.swing.JFrame {
             System.getLogger(produk.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }
     }
+    
+    private void renderCategory(){
+        this.ComboBoxCategories.removeAllItems();
+        try {
+            for(categoriesInterface items : this.produkController.getCategories()){
+                this.ComboBoxCategories.addItem(items.name);
+            }
+        } catch (SQLException ex) {
+            System.getLogger(produk.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
+        this.ComboBoxCategories.addItem("Tambah baru");
+    }
 
     /**
      * Creates new form produk
@@ -48,6 +61,7 @@ public class produk extends javax.swing.JFrame {
         this.setupShortcut();
         this.model = (DefaultTableModel) this.TabelProduk.getModel();
         this.renderTabel();
+        this.renderCategory();
     }
 
     private void toTransaksi() {
@@ -96,7 +110,7 @@ public class produk extends javax.swing.JFrame {
         jTextField1 = new javax.swing.JTextField();
         jPanel4 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox<>();
+        ComboBoxCategories = new javax.swing.JComboBox<>();
         jLabel6 = new javax.swing.JLabel();
         jPanel5 = new javax.swing.JPanel();
         jLabel7 = new javax.swing.JLabel();
@@ -184,7 +198,8 @@ public class produk extends javax.swing.JFrame {
 
         jLabel5.setText("Kategori");
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        ComboBoxCategories.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        ComboBoxCategories.addActionListener(this::ComboBoxCategoriesActionPerformed);
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -193,7 +208,7 @@ public class produk extends javax.swing.JFrame {
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jComboBox1, 0, 164, Short.MAX_VALUE)
+                    .addComponent(ComboBoxCategories, 0, 164, Short.MAX_VALUE)
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addComponent(jLabel5)
                         .addGap(0, 0, Short.MAX_VALUE)))
@@ -205,7 +220,7 @@ public class produk extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jLabel5)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jComboBox1)
+                .addComponent(ComboBoxCategories)
                 .addContainerGap())
         );
 
@@ -425,6 +440,10 @@ public class produk extends javax.swing.JFrame {
         modal.setVisible(true);
     }//GEN-LAST:event_jToggleButton1ActionPerformed
 
+    private void ComboBoxCategoriesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ComboBoxCategoriesActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_ComboBoxCategoriesActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -452,10 +471,10 @@ public class produk extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton ButtonToTransaksi;
+    private javax.swing.JComboBox<String> ComboBoxCategories;
     private javax.swing.JTable TabelProduk;
     private javax.swing.JLabel TextDateTimeNow;
     private javax.swing.JLabel TextDayNow;
-    private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
