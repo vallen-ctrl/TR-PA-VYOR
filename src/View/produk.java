@@ -330,7 +330,15 @@ public class produk extends javax.swing.JFrame {
             new String [] {
                 "Nomor", "Nama", "Kategori", "Stok", "Satuan", "Harga Jual", "Supplier", "Terakhir diSupply"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, true, true, false, true, true, true, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jScrollPane1.setViewportView(TabelProduk);
         if (TabelProduk.getColumnModel().getColumnCount() > 0) {
             TabelProduk.getColumnModel().getColumn(3).setMaxWidth(50);
