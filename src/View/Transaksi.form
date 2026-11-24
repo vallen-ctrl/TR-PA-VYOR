@@ -455,13 +455,13 @@
                   <Component id="jPanel8" min="-2" max="-2" attributes="0"/>
                   <EmptySpace min="-2" pref="35" max="-2" attributes="0"/>
                   <Component id="jPanel9" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace type="unrelated" max="32767" attributes="0"/>
+                  <EmptySpace type="unrelated" pref="36" max="32767" attributes="0"/>
                   <Component id="jPanel10" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace type="unrelated" max="32767" attributes="0"/>
+                  <EmptySpace type="unrelated" pref="36" max="32767" attributes="0"/>
                   <Component id="jPanel11" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace type="unrelated" max="32767" attributes="0"/>
+                  <EmptySpace type="unrelated" pref="36" max="32767" attributes="0"/>
                   <Component id="jPanel12" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace type="unrelated" max="32767" attributes="0"/>
+                  <EmptySpace type="unrelated" pref="36" max="32767" attributes="0"/>
                   <Component id="jPanel13" max="32767" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
@@ -669,7 +669,7 @@
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="jLabel26" alignment="0" max="32767" attributes="0"/>
-                  <Component id="jTextField9" alignment="0" max="32767" attributes="0"/>
+                  <Component id="jTextField9" alignment="0" pref="88" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
@@ -1116,11 +1116,12 @@
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
-                      <EmptySpace pref="158" max="32767" attributes="0"/>
+                      <EmptySpace max="32767" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jButton8" alignment="1" min="-2" pref="164" max="-2" attributes="0"/>
+                          <Component id="ButtonRiwayatTransaksi" alignment="1" min="-2" pref="164" max="-2" attributes="0"/>
                           <Component id="ButtonToProduk" alignment="1" min="-2" pref="164" max="-2" attributes="0"/>
                           <Component id="jButton10" alignment="1" min="-2" pref="164" max="-2" attributes="0"/>
+                          <Component id="ButtonBukaLayar2" alignment="1" min="-2" pref="164" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -1130,23 +1131,25 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jButton8" min="-2" pref="60" max="-2" attributes="0"/>
+                      <Component id="ButtonRiwayatTransaksi" min="-2" pref="60" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="ButtonToProduk" min="-2" pref="60" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jButton10" min="-2" pref="60" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="ButtonBukaLayar2" min="-2" pref="60" max="-2" attributes="0"/>
                       <EmptySpace max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
           </Layout>
           <SubComponents>
-            <Component class="javax.swing.JButton" name="jButton8">
+            <Component class="javax.swing.JButton" name="ButtonRiwayatTransaksi">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Transaksi &#xa;(F1)"/>
+                <Property name="text" type="java.lang.String" value="Riwayat Transaksi (F1)"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton8ActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ButtonRiwayatTransaksiActionPerformed"/>
               </Events>
             </Component>
             <Component class="javax.swing.JButton" name="ButtonToProduk">
@@ -1161,6 +1164,14 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="Member (F3)"/>
               </Properties>
+            </Component>
+            <Component class="javax.swing.JButton" name="ButtonBukaLayar2">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Buka Layar 2 (F5)"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ButtonBukaLayar2ActionPerformed"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>

@@ -88,29 +88,44 @@ public class Transaksi extends javax.swing.JFrame {
     }
     
     private void setupShortcut() {
-        javax.swing.KeyStroke esc = javax.swing.KeyStroke.getKeyStroke(
+        javax.swing.KeyStroke enterKey = javax.swing.KeyStroke.getKeyStroke(
                 java.awt.event.KeyEvent.VK_ENTER, 0);
-        
-        javax.swing.KeyStroke enter = javax.swing.KeyStroke.getKeyStroke(
-                java.awt.event.KeyEvent.VK_F2, 0
-        );
+        javax.swing.KeyStroke f1Key = javax.swing.KeyStroke.getKeyStroke(
+                java.awt.event.KeyEvent.VK_F1, 0);
+        javax.swing.KeyStroke f2Key = javax.swing.KeyStroke.getKeyStroke(
+                java.awt.event.KeyEvent.VK_F2, 0);
+        javax.swing.KeyStroke f4Key = javax.swing.KeyStroke.getKeyStroke(
+                java.awt.event.KeyEvent.VK_F4, 0);
+        javax.swing.KeyStroke f5Key = javax.swing.KeyStroke.getKeyStroke(
+                java.awt.event.KeyEvent.VK_F5, 0);
 
         this.getRootPane().registerKeyboardAction(
                 e -> this.lakukanPembayaran(),
-                esc,
+                enterKey,
                 javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW
         );
-        
-        this.getRootPane().registerKeyboardAction(
-                e -> this.toProduk(), 
-                enter, 
-                javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW);
-        
-        javax.swing.KeyStroke f4 = javax.swing.KeyStroke.getKeyStroke(
-                java.awt.event.KeyEvent.VK_F4, 0);
+
         this.getRootPane().registerKeyboardAction(
                 e -> new RiwayatTransaksi().setVisible(true),
-                f4,
+                f1Key,
+                javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW
+        );
+
+        this.getRootPane().registerKeyboardAction(
+                e -> this.toProduk(),
+                f2Key,
+                javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW
+        );
+
+        this.getRootPane().registerKeyboardAction(
+                e -> new RiwayatTransaksi().setVisible(true),
+                f4Key,
+                javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW
+        );
+
+        this.getRootPane().registerKeyboardAction(
+                e -> this.bukaLayar2(),
+                f5Key,
                 javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW
         );
     }
@@ -402,16 +417,33 @@ public class Transaksi extends javax.swing.JFrame {
     }
     
     private Layar2 dapatkanLayarPembeli(boolean tampilkanJikaBelum) {
-    if (layarPembeli == null && tampilkanJikaBelum) {
-        layarPembeli = new Layar2();
-    }
-    if (layarPembeli != null && tampilkanJikaBelum && !layarPembeli.isVisible()) {
-        layarPembeli.setVisible(true);
-    }
-    return layarPembeli;
+        if (tampilkanJikaBelum && (layarPembeli == null || !layarPembeli.isDisplayable())) {
+            layarPembeli = new Layar2();
+        }
+        if (layarPembeli != null && tampilkanJikaBelum) {
+            if (!layarPembeli.isVisible()) {
+                layarPembeli.setVisible(true);
+            }
+            javax.swing.table.DefaultTableModel model =
+                    (javax.swing.table.DefaultTableModel) Tabel.getModel();
+            layarPembeli.updateKeranjang(
+                    model,
+                    formatUang(subTotal),
+                    formatUang(pajak),
+                    formatUang(grandTotal)
+            );
+        }
+        return layarPembeli;
     }
     
     
+    private void bukaLayar2() {
+        Layar2 target = dapatkanLayarPembeli(true);
+        if (target != null) {
+            target.toFront();
+            target.requestFocus();
+        }
+    }
     
     private void tambahBarangKeTabel() {
         String kodeInput = this.kodeBarang.getText().trim();
@@ -586,10 +618,6 @@ public class Transaksi extends javax.swing.JFrame {
         
 //      Menghubungkan tombol "Bayar Sekarang" ke proses pembayaran (Cash / QRIS)
         this.ButtonBayarSekarang.addActionListener(e -> prosesBayarSekarang());
-        
-        // Reset angka awal 0.000.000 menjadi 0 saat aplikasi pertama kali dibuka
-        this.layarPembeli = new Layar2();
-        this.layarPembeli.setVisible(true);
         this.hitungTotalBelanja();
     }
     
@@ -677,9 +705,10 @@ public class Transaksi extends javax.swing.JFrame {
         ButtonSetCash = new javax.swing.JButton();
         ButtonSetQris = new javax.swing.JButton();
         jPanel17 = new javax.swing.JPanel();
-        jButton8 = new javax.swing.JButton();
+        ButtonRiwayatTransaksi = new javax.swing.JButton();
         ButtonToProduk = new javax.swing.JButton();
         jButton10 = new javax.swing.JButton();
+        ButtonBukaLayar2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -1028,7 +1057,7 @@ public class Transaksi extends javax.swing.JFrame {
         jPanel13Layout.setHorizontalGroup(
             jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jLabel26, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jTextField9)
+            .addComponent(jTextField9, javax.swing.GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
         );
         jPanel13Layout.setVerticalGroup(
             jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1047,13 +1076,13 @@ public class Transaksi extends javax.swing.JFrame {
                 .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(35, 35, 35)
                 .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, 36, Short.MAX_VALUE)
                 .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, 36, Short.MAX_VALUE)
                 .addComponent(jPanel11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, 36, Short.MAX_VALUE)
                 .addComponent(jPanel12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, 36, Short.MAX_VALUE)
                 .addComponent(jPanel13, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
@@ -1273,35 +1302,41 @@ public class Transaksi extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jButton8.setText("Transaksi \n(F1)");
-        jButton8.addActionListener(this::jButton8ActionPerformed);
+        ButtonRiwayatTransaksi.setText("Riwayat Transaksi (F1)");
+        ButtonRiwayatTransaksi.addActionListener(this::ButtonRiwayatTransaksiActionPerformed);
 
         ButtonToProduk.setText("Produk (F2)");
         ButtonToProduk.addActionListener(this::ButtonToProdukActionPerformed);
 
         jButton10.setText("Member (F3)");
 
+        ButtonBukaLayar2.setText("Buka Layar 2 (F5)");
+        ButtonBukaLayar2.addActionListener(this::ButtonBukaLayar2ActionPerformed);
+
         javax.swing.GroupLayout jPanel17Layout = new javax.swing.GroupLayout(jPanel17);
         jPanel17.setLayout(jPanel17Layout);
         jPanel17Layout.setHorizontalGroup(
             jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel17Layout.createSequentialGroup()
-                .addContainerGap(158, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton8, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(ButtonRiwayatTransaksi, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(ButtonToProduk, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton10, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jButton10, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(ButtonBukaLayar2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
         jPanel17Layout.setVerticalGroup(
             jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel17Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jButton8, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(ButtonRiwayatTransaksi, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(ButtonToProduk, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton10, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(ButtonBukaLayar2, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -1423,9 +1458,13 @@ public class Transaksi extends javax.swing.JFrame {
         this.toProduk();
     }//GEN-LAST:event_ButtonToProdukActionPerformed
 
-    private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
+    private void ButtonRiwayatTransaksiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonRiwayatTransaksiActionPerformed
         new RiwayatTransaksi().setVisible(true);
-    }//GEN-LAST:event_jButton8ActionPerformed
+    }//GEN-LAST:event_ButtonRiwayatTransaksiActionPerformed
+
+    private void ButtonBukaLayar2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonBukaLayar2ActionPerformed
+        this.bukaLayar2();
+    }//GEN-LAST:event_ButtonBukaLayar2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1458,6 +1497,8 @@ public class Transaksi extends javax.swing.JFrame {
     private javax.swing.JButton ButtonAdd50K;
     private javax.swing.JButton ButtonBayarSekarang;
     private javax.swing.JButton ButtonBayarUangPas;
+    private javax.swing.JButton ButtonBukaLayar2;
+    private javax.swing.JButton ButtonRiwayatTransaksi;
     private javax.swing.JButton ButtonSetCash;
     private javax.swing.JButton ButtonSetQris;
     private javax.swing.JButton ButtonToProduk;
@@ -1479,7 +1520,6 @@ public class Transaksi extends javax.swing.JFrame {
     private javax.swing.JTextField hargaPersatuan;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton10;
-    private javax.swing.JButton jButton8;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
