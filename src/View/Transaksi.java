@@ -1153,6 +1153,7 @@ public class Transaksi extends javax.swing.JFrame {
 
         InputTextUangBayar.setFont(new java.awt.Font("Liberation Sans", 0, 36)); // NOI18N
         InputTextUangBayar.setText("Rp.");
+        InputTextUangBayar.addActionListener(this::InputTextUangBayarActionPerformed);
         InputTextUangBayar.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 InputTextUangBayarKeyReleased(evt);
@@ -1473,6 +1474,10 @@ public class Transaksi extends javax.swing.JFrame {
     private void ButtonBukaLayar2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonBukaLayar2ActionPerformed
         this.bukaLayar2();
     }//GEN-LAST:event_ButtonBukaLayar2ActionPerformed
+
+    private void InputTextUangBayarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_InputTextUangBayarActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_InputTextUangBayarActionPerformed
 
     /**
      * @param args the command line arguments

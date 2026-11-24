@@ -170,7 +170,7 @@
                                   <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                               </Group>
                               <Component id="ChangeTextPotensiPemasukan" alignment="0" pref="125" max="32767" attributes="0"/>
-                              <Component id="ChangeTextStrokSekarang" alignment="1" pref="125" max="32767" attributes="0"/>
+                              <Component id="ChangeTextStokSekarang" alignment="1" pref="125" max="32767" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
@@ -202,7 +202,7 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="jLabel19" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="ChangeTextStrokSekarang" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="ChangeTextStokSekarang" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                   </Group>
@@ -254,7 +254,7 @@
                     <Property name="text" type="java.lang.String" value="Rp -"/>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JLabel" name="ChangeTextStrokSekarang">
+                <Component class="javax.swing.JLabel" name="ChangeTextStokSekarang">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="00"/>
                   </Properties>

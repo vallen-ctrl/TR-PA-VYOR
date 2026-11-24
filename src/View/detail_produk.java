@@ -13,7 +13,7 @@ import java.sql.SQLException;
 import java.time.temporal.ChronoUnit;
 import Model.interfaces.productInterface;
 import java.util.List;
-import java.util.ArrayList;
+import utils.Text;
 
 /**
  *
@@ -28,6 +28,7 @@ public class detail_produk extends javax.swing.JFrame {
     private String nomorProduk;
     private productInterface getproduk = null;
     private List<product_batchInterface> batch = null;
+    private Text tx = new Text();
     
     private void renderTabel(){
         this.model.setRowCount(0);
@@ -50,7 +51,11 @@ public class detail_produk extends javax.swing.JFrame {
     private void initComponentsText(){
         this.InputTextNomorBarang.setText(this.nomorProduk);
         this.InputTextNama.setText(this.getproduk.nama);
-        this.InputTextHargaJual.setText(this.getproduk.harga_jual.toString());
+        this.InputTextHargaJual.setText(this.tx.formatUang(this.getproduk.harga_jual));
+        Long potensiPemasukan = Math.round(this.getproduk.harga_jual - this.getproduk.harga_beli);
+        this.ChangeTextPotensiPemasukan.setText(this.tx.formatUang(potensiPemasukan));
+        this.ChangeTextStokSekarang.setText(this.getproduk.stok.toString());
+        
     }
 
     /**
@@ -68,6 +73,7 @@ public class detail_produk extends javax.swing.JFrame {
         }
         this.setupShortcut();
         this.renderTabel();
+        this.initComponentsText();
     }
     
     public detail_produk() {
@@ -120,7 +126,7 @@ public class detail_produk extends javax.swing.JFrame {
         InputTextNama = new javax.swing.JTextField();
         InputTextHargaJual = new javax.swing.JTextField();
         ChangeTextPotensiPemasukan = new javax.swing.JLabel();
-        ChangeTextStrokSekarang = new javax.swing.JLabel();
+        ChangeTextStokSekarang = new javax.swing.JLabel();
         jPanel9 = new javax.swing.JPanel();
         jLabel23 = new javax.swing.JLabel();
         jLabel24 = new javax.swing.JLabel();
@@ -168,7 +174,7 @@ public class detail_produk extends javax.swing.JFrame {
 
         ChangeTextPotensiPemasukan.setText("Rp -");
 
-        ChangeTextStrokSekarang.setText("00");
+        ChangeTextStokSekarang.setText("00");
 
         javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
         jPanel8.setLayout(jPanel8Layout);
@@ -191,7 +197,7 @@ public class detail_produk extends javax.swing.JFrame {
                             .addComponent(InputTextHargaJual))
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addComponent(ChangeTextPotensiPemasukan, javax.swing.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE)
-                    .addComponent(ChangeTextStrokSekarang, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE))
+                    .addComponent(ChangeTextStokSekarang, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel8Layout.setVerticalGroup(
@@ -216,7 +222,7 @@ public class detail_produk extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel19)
-                    .addComponent(ChangeTextStrokSekarang)))
+                    .addComponent(ChangeTextStokSekarang)))
         );
 
         jLabel23.setText("Supplier Terakhir:");
@@ -446,7 +452,7 @@ public class detail_produk extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton ButtonToTransaksi;
     private javax.swing.JLabel ChangeTextPotensiPemasukan;
-    private javax.swing.JLabel ChangeTextStrokSekarang;
+    private javax.swing.JLabel ChangeTextStokSekarang;
     private javax.swing.JTextField InputTextHargaJual;
     private javax.swing.JTextField InputTextNama;
     private javax.swing.JTextField InputTextNomorBarang;
