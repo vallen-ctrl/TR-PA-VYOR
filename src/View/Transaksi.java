@@ -87,6 +87,14 @@ public class Transaksi extends javax.swing.JFrame {
         this.ButtonBayarSekarang.doClick();
     }
     
+    private void toRiwayatTransaksi(){
+        RiwayatTransaksi next = new RiwayatTransaksi();
+        next.setSize(this.getSize());
+        next.setLocation(this.getLocation());
+        next.setVisible(true);
+        this.dispose();
+    }
+    
     private void setupShortcut() {
         javax.swing.KeyStroke enterKey = javax.swing.KeyStroke.getKeyStroke(
                 java.awt.event.KeyEvent.VK_ENTER, 0);
@@ -1459,7 +1467,7 @@ public class Transaksi extends javax.swing.JFrame {
     }//GEN-LAST:event_ButtonToProdukActionPerformed
 
     private void ButtonRiwayatTransaksiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonRiwayatTransaksiActionPerformed
-        new RiwayatTransaksi().setVisible(true);
+        this.toRiwayatTransaksi();
     }//GEN-LAST:event_ButtonRiwayatTransaksiActionPerformed
 
     private void ButtonBukaLayar2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonBukaLayar2ActionPerformed
