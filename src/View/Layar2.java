@@ -100,6 +100,13 @@ public class Layar2 extends javax.swing.JFrame {
             jLabel16.setText("Terima Kasih Telah Berbelanja!");
         });
     }
+    
+    public void tutupLayar() {
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            resetLayar();
+            dispose();
+        });
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
