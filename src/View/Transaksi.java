@@ -46,12 +46,26 @@ public class Transaksi extends javax.swing.JFrame {
         }
     }
     
-    private void toProduk(){
+    private void toProduk() {
         produk next = new produk();
         next.setLocation(this.getLocation());
         next.setSize(this.getSize());
         next.setVisible(true);
-        this.TIME.stopTime();
+
+        if (this.layarPembeli != null) {
+            this.layarPembeli.tutupLayar();
+            this.layarPembeli = null;
+        }
+
+        for (java.awt.Window w : java.awt.Window.getWindows()) {
+            if (w instanceof Layar2 && w.isDisplayable()) {
+                w.dispose();
+            }
+        }
+
+        if (this.TIME != null) {
+            this.TIME.stopTime();
+        }
         this.dispose();
     }
     
