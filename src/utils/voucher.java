@@ -16,6 +16,11 @@ public class voucher {
 
     public Integer extensionDays = 3;
     public Integer Lenght = 4;
+    
+    private boolean chekDateStartEndNow(LocalDate timeNow, LocalDate timeStart, LocalDate timeEnd){
+        return timeNow.isAfter(timeStart.minusDays(1))
+                && timeNow.isBefore(timeEnd.plusDays(1));
+    }
 
     public boolean checkIsValidDate(LocalDate TimeNow, LocalDate timeBirthDay) {
         LocalDate batasAwal = LocalDate.of(
@@ -31,8 +36,8 @@ public class voucher {
         //maka kalau tanpa plus dan minus berarti tanggal validnya hanya dari tanggal 11 - 12 
         //karena bentuk logikanya gini 10-10 > tanggal sekarang && tanggal sekarang < 13-10
         //jadi tanggal validnya hanya 11 sampai 12
-        return TimeNow.isBefore(batasAkhir.plusDays(1))
-                && TimeNow.isAfter(batasAwal.minusDays(1));
+      
+        return this.chekDateStartEndNow(TimeNow, batasAwal, batasAkhir);
     }
 
     public String getVoucer(LocalDate TimeNow, LocalDate timeBirthDay) {
