@@ -63,7 +63,15 @@ public class RiwayatTransaksi extends javax.swing.JFrame {
         ButtonCetakStruk.addActionListener(e -> cetakUlangStruk());
         ButtonEksporCsv.addActionListener(e -> eksporCsv());
         ButtonRetur.addActionListener(e -> bukaDialogRetur());
-        ButtonKembali.addActionListener(e -> this.dispose());
+        ButtonKembali.addActionListener(e -> this.toTransaksi());
+    }
+    
+    private void toTransaksi(){
+        Transaksi next = new Transaksi();
+        next.setSize(this.getSize());
+        next.setLocation(this.getLocation());
+        next.setVisible(true);
+        this.dispose();
     }
     
     private List<transactionsInterface> daftarAktif = new ArrayList<>();

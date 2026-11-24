@@ -1467,7 +1467,7 @@ public class Transaksi extends javax.swing.JFrame {
     }//GEN-LAST:event_ButtonToProdukActionPerformed
 
     private void ButtonRiwayatTransaksiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonRiwayatTransaksiActionPerformed
-        this.toRiwayatTransaksi();
+        this.toRiwayatTransaksi();  
     }//GEN-LAST:event_ButtonRiwayatTransaksiActionPerformed
 
     private void ButtonBukaLayar2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonBukaLayar2ActionPerformed
