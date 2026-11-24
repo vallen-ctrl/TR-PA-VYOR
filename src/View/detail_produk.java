@@ -6,6 +6,12 @@ package View;
 
 import java.awt.event.KeyEvent;
 import utils.TimeNow;
+import Controller.DetailProdukController;
+import javax.swing.table.DefaultTableModel;
+import Model.interfaces.product_batchInterface;
+import java.sql.SQLException;
+import java.time.temporal.ChronoUnit;
+import Model.interfaces.productInterface;
 
 /**
  *
@@ -15,13 +21,49 @@ public class detail_produk extends javax.swing.JFrame {
 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(detail_produk.class.getName());
     private TimeNow TIME = new TimeNow();
+    private DefaultTableModel model;
+    private DetailProdukController detControler = new DetailProdukController();
+    private String nomorProduk;
+    private productInterface getproduk;
+    
+    private void renderTabel(){
+        this.model.setRowCount(0);
+        try {
+            for(product_batchInterface items : this.detControler.getBatches(this.getproduk.id)){
+                int lamaPerjalanan = (int) ChronoUnit.DAYS.between(items.tanggal_pemesanan, items.tanggal_masuk);
+                this.model.addRow(
+                        new Object[] {items.tanggal_masuk.toString(), items.tanggal_pemesanan.toString(),
+                                String.valueOf(lamaPerjalanan), items.alamatSupplier, 
+                                items.harga_beli, items.qty, items.tanggal_kadaluarsa.toString()
+                        }
+                );
+            }
+                } catch (SQLException ex) {
+            System.getLogger(detail_produk.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
+    }
 
     /**
      * Creates new form produk
      */
+    public detail_produk(String nomorProduk) {
+        initComponents();
+        TIME.startTime(this.TextDateTimeNow, this.TextDayNow);
+        this.nomorProduk = nomorProduk;
+        this.model = (DefaultTableModel) this.TabelBatches.getModel();
+        try {
+            this.getproduk = this.detControler.getProdukByNumber(this.nomorProduk);
+        } catch (SQLException ex) {
+            System.getLogger(detail_produk.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
+        this.setupShortcut();
+        this.renderTabel();
+    }
+    
     public detail_produk() {
         initComponents();
         TIME.startTime(this.TextDateTimeNow, this.TextDayNow);
+        this.model = (DefaultTableModel) this.TabelBatches.getModel();
         this.setupShortcut();
     }
 
@@ -82,7 +124,7 @@ public class detail_produk extends javax.swing.JFrame {
         jLabel28 = new javax.swing.JLabel();
         jLabel31 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        TabelBatches = new javax.swing.JTable();
         jPanel6 = new javax.swing.JPanel();
         jToggleButton2 = new javax.swing.JToggleButton();
         ButtonToTransaksi = new javax.swing.JToggleButton();
@@ -135,9 +177,8 @@ public class detail_produk extends javax.swing.JFrame {
                     .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel16, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(jLabel19, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLabel18, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(jLabel19, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel18, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel8Layout.createSequentialGroup()
@@ -296,7 +337,7 @@ public class detail_produk extends javax.swing.JFrame {
                     .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        TabelBatches.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null, null, null},
                 {null, null, null, null, null, null, null, null},
@@ -307,9 +348,9 @@ public class detail_produk extends javax.swing.JFrame {
                 "Tanggal Masuk", "Tanggal Pembelian", "Lama Perjalanan", "Alamat Supplier", "Nama", "Harga Beli", "QTY", "Kadaluarsa"
             }
         ));
-        jScrollPane1.setViewportView(jTable1);
-        if (jTable1.getColumnModel().getColumnCount() > 0) {
-            jTable1.getColumnModel().getColumn(6).setMaxWidth(50);
+        jScrollPane1.setViewportView(TabelBatches);
+        if (TabelBatches.getColumnModel().getColumnCount() > 0) {
+            TabelBatches.getColumnModel().getColumn(6).setMaxWidth(50);
         }
 
         jToggleButton2.setText("Hapus Barang");
@@ -406,6 +447,7 @@ public class detail_produk extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton ButtonToTransaksi;
+    private javax.swing.JTable TabelBatches;
     private javax.swing.JLabel TextDateTimeNow;
     private javax.swing.JLabel TextDayNow;
     private javax.swing.JLabel jLabel1;
@@ -433,7 +475,6 @@ public class detail_produk extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel8;
     private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextField4;

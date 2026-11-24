@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
+
 /**
  *
  * @author vallen
@@ -42,12 +43,23 @@ public class product_batches extends model {
         return this.updateOnce("ditangani", "" + ditangani).where("id = " + batchID).execute();
     }
 
-    public List<product_batchInterface> get(int Limit, int Offset) throws SQLException {
+    public List<product_batchInterface> get(Integer ProductId) throws SQLException {
         List<product_batchInterface> batch = new ArrayList<>();
 
-        ResultSet res = this.select().setLimit(Limit).setOffset(Offset).run();
+        ResultSet res = this.select(this.thisTableName() + ".*", "suppliers.nama AS nama_supplier, suppliers.alamat as alamat_supplier")
+            .leftJoin("suppliers", "suppliers.id = " + this.thisTableName() + ".supplier_id")
+            .where(this.thisTableName()+".product_id = "+ProductId.toString())
+            .run();
         while (res.next()) {
-            batch.add(new product_batchInterface(
+            batch.add(this.mapping(res));
+        }     
+        return batch;
+    }
+    
+    
+    
+    public product_batchInterface mapping(ResultSet res) throws SQLException{
+        return new product_batchInterface(
                     res.getInt("id"),
                     res.getInt("product_id"),
                     res.getInt("supplier_id"),
@@ -57,9 +69,9 @@ public class product_batches extends model {
                     res.getDate("tanggal_pemesanan").toLocalDate(),
                     res.getDate("tanggal_masuk").toLocalDate(),
                     res.getDate("tanggal_kadaluarsa").toLocalDate(),
-                    res.getBoolean("ditangani")
-            ));
-        }     
-        return batch;
+                    res.getBoolean("ditangani"),
+                    res.getString("nama_supplier"),
+                    res.getString("alamat_supplier")
+            );
     }
 }

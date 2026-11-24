@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.sql.ResultSet;
+import java.util.Date;
 
 /**
  *
@@ -51,23 +52,53 @@ public class products extends model {
                 .run();
 
         while (res.next()) {
-            product.add(new productInterface(
-                    res.getInt("id"),
-                    res.getString("nomor"),
-                    res.getString("nama"),
-                    res.getInt("category_id"),
-                    res.getInt("supplier_id"),
-                    res.getString("satuan"),
-                    res.getDouble("harga_beli"),
-                    res.getDouble("harga_jual"),
-                    res.getInt("stok"),
-                    res.getDate("terakhir_disuplai").toLocalDate(),
-                    res.getBoolean("dihapus"),
-                    res.getString("categories"),
-                    res.getString("supplier")
-            ));
+            product.add(this.mapping(res));
         }
 
         return product;
+    }
+
+    public productInterface getProductByNumber(String nomor) throws SQLException {
+        String nomorAman = nomor.replace("'", "''");
+        ResultSet res = this.select(
+                "products.id", "products.nomor", "products.nama", "c.nama as categories", "products.category_id", "s.nama as supplier", "products.supplier_id", "products.satuan", "products.harga_beli",
+                "products.harga_jual", "products.stok", "products.terakhir_disuplai", "products.dihapus"
+        )
+                .leftJoin("categories c", "c.id = products.category_id")
+                .leftJoin("suppliers s", "s.id = products.supplier_id")
+                .where("products.dihapus = 0 AND products.nomor = '" + nomorAman + "'")
+                .run();
+        if (res == null) {
+            throw new SQLException("Query getProductByNumber gagal, cek log.");
+        }
+
+        try {
+            if (!res.next()) {
+                return null; // produk tidak ditemukan
+            }
+            return this.mapping(res);
+        } finally {
+            res.close();
+        }
+    }
+
+    public productInterface mapping(ResultSet res) throws SQLException {
+        java.sql.Date terakhir = res.getDate("terakhir_disuplai");
+
+        return new productInterface(
+                res.getInt("id"),
+                res.getString("nomor"),
+                res.getString("nama"),
+                res.getInt("category_id"),
+                res.getInt("supplier_id"),
+                res.getString("satuan"),
+                res.getDouble("harga_beli"),
+                res.getDouble("harga_jual"),
+                res.getInt("stok"),
+                terakhir != null ? terakhir.toLocalDate() : null,
+                res.getBoolean("dihapus"),
+                res.getString("categories"),
+                res.getString("supplier")
+        );
     }
 }
