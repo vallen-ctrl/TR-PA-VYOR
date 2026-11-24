@@ -15,7 +15,7 @@ import java.sql.SQLException;
 public class SupplierControler {
     public suppliers suply = new suppliers();
     
-    public List<SupplierInterface> getAll(){
+    public List<SupplierInterface> getAll() throws SQLException{
         return suply.get();
     }
     

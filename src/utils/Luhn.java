@@ -2,6 +2,8 @@ package utils;
 /** @author jein */
 public class Luhn {
     
+    private Text tx = new Text();
+    
     private int findchekDigits(int sumAll) {
         int a = (10 - (sumAll % 10)) % 10;
         return a;
@@ -15,14 +17,11 @@ public class Luhn {
      * @return int + 64 untuk mengirimkan char ASCII A
      */
     public char chekSumGenerate(String Text) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < Text.length(); i++) {
-            sb.append((int) Text.charAt(i));
-        }
+        String numText = this.tx.textToStringNumber(Text);
         int jumlah = 0;
 
-        for (int i = sb.toString().length() - 1; i > 0; i--) {
-            int number = sb.toString().charAt(i) - '0';
+        for (int i = numText.length() - 1; i > 0; i--) {
+            int number = numText.charAt(i) - '0';
             if (i % 2 == 0) {
                 int temp = number * 2;
                 if (temp > 9) {
@@ -41,15 +40,13 @@ public class Luhn {
     public boolean isValid(String kode) {
         String payload = kode.substring(0, kode.length() - 1);
         char chekDigits = kode.charAt(kode.length() - 1);
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < payload.length(); i++) {
-            sb.append((int) payload.charAt(i));
-        }
-
+        
+        String numText = this.tx.textToStringNumber(payload);
+        
         int jumlah = 0;
 
-        for (int i = sb.toString().length() - 1; i > 0; i--) {
-            int number = sb.toString().charAt(i) - '0';
+        for (int i = numText.length() - 1; i > 0; i--) {
+            int number = numText.charAt(i) - '0';
             if (i % 2 == 0) {
                 int temp = number * 2;
                 if (temp > 9) {

@@ -87,8 +87,12 @@ public class supplier extends javax.swing.JFrame {
 
     private void RenderTabel() {
         this.model.setRowCount(0);
-        for (SupplierInterface suply : this.supplierControler.getAll()) {
-            this.model.addRow(new Object[]{suply.id, suply.nama, suply.alamat, suply.nomorHp});
+        try {
+            for (SupplierInterface suply : this.supplierControler.getAll()) {
+                this.model.addRow(new Object[]{suply.id, suply.nama, suply.alamat, suply.nomorHp});
+            }
+        } catch (SQLException ex) {
+            System.getLogger(supplier.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }
     }
 

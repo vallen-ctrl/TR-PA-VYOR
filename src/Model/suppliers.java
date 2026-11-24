@@ -28,23 +28,21 @@ public class suppliers extends model {
 
     }
 
-    public List<SupplierInterface> get() {
+    public List<SupplierInterface> get() throws SQLException {
         List<SupplierInterface> supplierList = new ArrayList<>();
         ResultSet res;
-        try {
-            res = this.select().where("dihapus = 0").run();
-            while (res.next()) {
-                supplierList.add(new SupplierInterface(
-                        res.getInt("id"),
-                        res.getString("nama"),
-                        res.getString("alamat"),
-                        res.getString("nomor_hp"),
-                        res.getInt("dihapus")
-                ));
-            }
-        } catch (SQLException ex) {
-            System.getLogger(suppliers.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+
+        res = this.select().where("dihapus = 0").run();
+        while (res.next()) {
+            supplierList.add(new SupplierInterface(
+                    res.getInt("id"),
+                    res.getString("nama"),
+                    res.getString("alamat"),
+                    res.getString("nomor_hp"),
+                    res.getInt("dihapus")
+            ));
         }
+
         return supplierList;
     }
 
