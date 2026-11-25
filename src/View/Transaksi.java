@@ -24,6 +24,7 @@ public class Transaksi extends javax.swing.JFrame {
             = NumberFormat.getNumberInstance(Locale.forLanguageTag("id-ID"));
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Transaksi.class.getName());
     private TimeNow TIME;
+    private final Controller.TransaksiController transaksiController = new Controller.TransaksiController();
     
 //  Variabel penampung perhitungan transaksi
     private BigDecimal subTotal = BigDecimal.ZERO;
@@ -337,17 +338,7 @@ public class Transaksi extends javax.swing.JFrame {
             trx.kode = "TRX-" + java.time.LocalDateTime.now()
                     .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
 
-            long trxId = new Model.transactions().add(trx);
-            if (trxId <= 0) {
-                javax.swing.JOptionPane.showMessageDialog(this, "Gagal menyimpan transaksi ke database!", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            config.Database db = new config.Database();
-            java.sql.Statement stm = db.start();
-            java.sql.Connection conn = stm.getConnection();
-
-            Model.transaction_items itemModel = new Model.transaction_items();
+            java.util.List<Controller.TransaksiController.ItemKeranjangInput> daftarItem = new java.util.ArrayList<>();
             for (int i = 0; i < model.getRowCount(); i++) {
                 String kodeBarang = model.getValueAt(i, 0).toString();
                 String namaBarang = model.getValueAt(i, 1).toString();
@@ -358,39 +349,23 @@ public class Transaksi extends javax.swing.JFrame {
                 String cleanHarga = model.getValueAt(i, 6).toString().replaceAll("[^0-9]", "");
                 BigDecimal hargaSatuan = cleanHarga.isEmpty() ? BigDecimal.ZERO : new BigDecimal(cleanHarga);
 
-                int productId = 1;
-                try (java.sql.PreparedStatement psCari = conn.prepareStatement(
-                        "SELECT id FROM products WHERE nomor = ? LIMIT 1")) {
-                    psCari.setString(1, kodeBarang);
-                    try (java.sql.ResultSet rs = psCari.executeQuery()) {
-                        if (rs.next()) productId = rs.getInt("id");
-                    }
-                }
-
-                Model.interfaces.transaction_itemInterface item =
-                        new Model.interfaces.transaction_itemInterface(
-                                trxId, productId, kodeBarang, namaBarang, qty, satuan, hargaSatuan
-                        );
-                itemModel.add(item);
-
-                // Kurangi stok produk di database
-                try (java.sql.PreparedStatement psStok = conn.prepareStatement(
-                        "UPDATE products SET stok = stok - ? WHERE id = ?")) {
-                    psStok.setInt(1, qty);
-                    psStok.setInt(2, productId);
-                    psStok.executeUpdate();
-                }
+                daftarItem.add(new Controller.TransaksiController.ItemKeranjangInput(
+                        kodeBarang, namaBarang, qty, satuan, hargaSatuan
+                ));
             }
 
-            // Tandai voucher sebagai 'dipakai' jika ada voucher aktif
-            if (this.activeVoucherId != null) {
-                try (java.sql.PreparedStatement psVoucher = conn.prepareStatement(
-                        "UPDATE vouchers SET status = 'dipakai' WHERE id = ?")) {
-                    psVoucher.setInt(1, this.activeVoucherId);
-                    psVoucher.executeUpdate();
-                }
+            Controller.TransaksiController.HasilSimpanTransaksi hasil =
+                    transaksiController.simpanTransaksi(trx, daftarItem);
+
+            if (!hasil.berhasil()) {
+                javax.swing.JOptionPane.showMessageDialog(
+                        this,
+                        hasil.pesan(),
+                        "Error",
+                        javax.swing.JOptionPane.ERROR_MESSAGE
+                );
+                return;
             }
-            db.close();
 
             // Perbarui status pembayaran di Layar 2 (Customer Display)
             if (this.layarPembeli != null) {
@@ -420,7 +395,12 @@ public class Transaksi extends javax.swing.JFrame {
             }
 
         } catch (Exception ex) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Error menyimpan transaksi: " + ex.getMessage(), "Database Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            javax.swing.JOptionPane.showMessageDialog(
+                    this,
+                    "Error menyimpan transaksi: " + ex.getMessage(),
+                    "Database Error",
+                    javax.swing.JOptionPane.ERROR_MESSAGE
+            );
         }
     }
     
@@ -480,82 +460,70 @@ public class Transaksi extends javax.swing.JFrame {
             return;
         }
 
-        config.Database db = new config.Database();
         try {
-            java.sql.Statement stm = db.start();
-            java.sql.Connection conn = stm.getConnection();
-
-            String sql = "SELECT nomor, nama, satuan, harga_jual, stok "
-                       + "FROM products WHERE nomor = ? AND dihapus = 0 LIMIT 1";
-
-            try (java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(1, kodeInput);
-                try (java.sql.ResultSet rs = ps.executeQuery()) {
-                    if (!rs.next()) {
-                        javax.swing.JOptionPane.showMessageDialog(
-                                this,
-                                "Barang dengan kode/nomor '" + kodeInput + "' tidak ditemukan!",
-                                "Data Tidak Ditemukan",
-                                javax.swing.JOptionPane.WARNING_MESSAGE
-                        );
-                        this.kodeBarang.requestFocusInWindow();
-                        return;
-                    }
-
-                    int stokTersedia = rs.getInt("stok");
-                    if (qty > stokTersedia) {
-                        javax.swing.JOptionPane.showMessageDialog(
-                                this,
-                                "Stok tidak mencukupi! Stok tersedia: " + stokTersedia,
-                                "Stok Kurang",
-                                javax.swing.JOptionPane.WARNING_MESSAGE
-                        );
-                        this.jumlahBarang.requestFocusInWindow();
-                        return;
-                    }
-
-                    String nomorProduk = rs.getString("nomor");
-                    String namaProduk = rs.getString("nama");
-                    String satuanProduk = rs.getString("satuan");
-                    BigDecimal hargaJual = rs.getBigDecimal("harga_jual");
-                    if (hargaJual == null) {
-                        hargaJual = BigDecimal.ZERO;
-                    }
-
-                    // Tampilkan preview di field input sebelah kanan
-                    this.NamaBarang.setText(namaProduk);
-                    this.SatuanBarang.setText(satuanProduk);
-                    this.hargaPersatuan.setText(formatUang(hargaJual));
-
-                    BigDecimal diskonItem = BigDecimal.ZERO;
-                    BigDecimal nettoItem = hargaJual.subtract(diskonItem);
-                    if (nettoItem.compareTo(BigDecimal.ZERO) < 0) {
-                        nettoItem = BigDecimal.ZERO;
-                    }
-                    BigDecimal totalBaris = nettoItem.multiply(BigDecimal.valueOf(qty));
-                    this.jTextField9.setText(formatUang(totalBaris));
-
-                    javax.swing.table.DefaultTableModel model =
-                            (javax.swing.table.DefaultTableModel) this.Tabel.getModel();
-
-                    // Kolom 0..7: Kode, Nama, Jumlah, Satuan, Harga, Diskon, Netto, Total
-                    model.addRow(new Object[]{
-                        nomorProduk,
-                        namaProduk,
-                        qty,
-                        satuanProduk,
-                        formatUang(hargaJual),
-                        formatUang(diskonItem),
-                        formatUang(nettoItem),
-                        formatUang(totalBaris)
-                    });
-
-                    // Reset field input barang untuk item berikutnya
-                    this.kodeBarang.setText("");
-                    this.jumlahBarang.setText("0");
-                    this.kodeBarang.requestFocusInWindow();
-                }
+            Model.interfaces.productInterface prod = transaksiController.cariProdukByNomor(kodeInput);
+            if (prod == null) {
+                javax.swing.JOptionPane.showMessageDialog(
+                        this,
+                        "Barang dengan kode/nomor '" + kodeInput + "' tidak ditemukan!",
+                        "Data Tidak Ditemukan",
+                        javax.swing.JOptionPane.WARNING_MESSAGE
+                );
+                this.kodeBarang.requestFocusInWindow();
+                return;
             }
+
+            int stokTersedia = prod.stok != null ? prod.stok : 0;
+            if (qty > stokTersedia) {
+                javax.swing.JOptionPane.showMessageDialog(
+                        this,
+                        "Stok tidak mencukupi! Stok tersedia: " + stokTersedia,
+                        "Stok Kurang",
+                        javax.swing.JOptionPane.WARNING_MESSAGE
+                );
+                this.jumlahBarang.requestFocusInWindow();
+                return;
+            }
+
+            String nomorProduk = prod.nomor;
+            String namaProduk = prod.nama;
+            String satuanProduk = prod.satuan;
+            BigDecimal hargaJual = prod.harga_jual != null
+                    ? BigDecimal.valueOf(prod.harga_jual)
+                    : BigDecimal.ZERO;
+
+            // Tampilkan preview di field input sebelah kanan
+            this.NamaBarang.setText(namaProduk);
+            this.SatuanBarang.setText(satuanProduk);
+            this.hargaPersatuan.setText(formatUang(hargaJual));
+
+            BigDecimal diskonItem = BigDecimal.ZERO;
+            BigDecimal nettoItem = hargaJual.subtract(diskonItem);
+            if (nettoItem.compareTo(BigDecimal.ZERO) < 0) {
+                nettoItem = BigDecimal.ZERO;
+            }
+            BigDecimal totalBaris = nettoItem.multiply(BigDecimal.valueOf(qty));
+            this.jTextField9.setText(formatUang(totalBaris));
+
+            javax.swing.table.DefaultTableModel model =
+                    (javax.swing.table.DefaultTableModel) this.Tabel.getModel();
+
+            // Kolom 0..7: Kode, Nama, Jumlah, Satuan, Harga, Diskon, Netto, Total
+            model.addRow(new Object[]{
+                nomorProduk,
+                namaProduk,
+                qty,
+                satuanProduk,
+                formatUang(hargaJual),
+                formatUang(diskonItem),
+                formatUang(nettoItem),
+                formatUang(totalBaris)
+            });
+
+            // Reset field input barang untuk item berikutnya
+            this.kodeBarang.setText("");
+            this.jumlahBarang.setText("0");
+            this.kodeBarang.requestFocusInWindow();
         } catch (Exception ex) {
             javax.swing.JOptionPane.showMessageDialog(
                     this,
@@ -563,18 +531,8 @@ public class Transaksi extends javax.swing.JFrame {
                     "Database Error",
                     javax.swing.JOptionPane.ERROR_MESSAGE
             );
-        } finally {
-            try {
-                if (db != null) {
-                    db.close();
-                }
-            } catch (java.sql.SQLException ex) {
-                logger.log(java.util.logging.Level.SEVERE, null, ex);
-            }
         }
     }
-    
-    
     
     
     /**
