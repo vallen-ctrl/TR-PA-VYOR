@@ -17,7 +17,7 @@ public class voucher {
     public Integer extensionDays = 3;
     public Integer Lenght = 4;
     
-    private boolean chekDateStartEndNow(LocalDate timeNow, LocalDate timeStart, LocalDate timeEnd){
+    public boolean chekDateStartEndNow(LocalDate timeNow, LocalDate timeStart, LocalDate timeEnd){
         return timeNow.isAfter(timeStart.minusDays(1))
                 && timeNow.isBefore(timeEnd.plusDays(1));
     }

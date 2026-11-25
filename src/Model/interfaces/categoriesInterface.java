@@ -18,7 +18,7 @@ public class categoriesInterface {
         this.dihapus = dihapus;
     }
 
-    public categoriesInterface(Integer id, String name, boolean dihapus) {
+    public categoriesInterface(int id, String name, boolean dihapus) {
         this.id = id;
         this.name = name;
         this.dihapus = dihapus;

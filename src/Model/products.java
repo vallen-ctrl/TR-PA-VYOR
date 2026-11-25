@@ -82,6 +82,14 @@ public class products extends model {
         }
     }
 
+    public void tambahStok(int productId, int stokLama, int qtyTambah, java.time.LocalDate tanggalMasuk) throws SQLException {
+        this.updateOnce("stok", String.valueOf(stokLama + qtyTambah))
+                .where("id = " + productId).execute();
+
+        this.updateOnce("terakhir_disuplai", tanggalMasuk.toString())
+                .where("id = " + productId).execute();
+    }
+
     public productInterface mapping(ResultSet res) throws SQLException {
         java.sql.Date terakhir = res.getDate("terakhir_disuplai");
 

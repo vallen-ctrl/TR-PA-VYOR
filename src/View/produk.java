@@ -79,6 +79,7 @@ public class produk extends javax.swing.JFrame {
         this.ComboBoxCategories.removeAllItems();
         try {
             for (categoriesInterface items : this.produkController.getCategories()) {
+                
                 this.ComboBoxCategories.addItem(items.name);
             }
         } catch (SQLException ex) {
@@ -514,6 +515,8 @@ public class produk extends javax.swing.JFrame {
         modal.pack();
         modal.setLocationRelativeTo(this);
         modal.setVisible(true);
+        
+        this.renderTabel();
     }//GEN-LAST:event_jToggleButton1ActionPerformed
 
     private void ComboBoxCategoriesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ComboBoxCategoriesActionPerformed

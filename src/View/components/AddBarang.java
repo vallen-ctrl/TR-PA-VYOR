@@ -4,19 +4,25 @@
  */
 package View.components;
 
+import Controller.ProdukController;
 import java.awt.Window;
 import javax.swing.SwingUtilities;
 import Model.interfaces.SupplierInterface;
 import Controller.SupplierControler;
+import Model.interfaces.productInterface;
+import Model.interfaces.categoriesInterface;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JOptionPane;
 
 /**
  *
  * @author vallen
  */
-
 class ComboItem {
+
     private final int id;
     private final String label;
 
@@ -25,28 +31,92 @@ class ComboItem {
         this.label = label;
     }
 
-    public int getId() { return id; }
-    public String getLabel() { return label; }
+    public int getId() {
+        return id;
+    }
+
+    public String getLabel() {
+        return label;
+    }
 
     @Override
     public String toString() {
         return label; // ini yang tampil di dropdown
     }
 }
+
 public class AddBarang extends javax.swing.JPanel {
-    
+
     private SupplierControler supplierController = new SupplierControler();
-    private List<SupplierInterface> prod; 
-    
-    private void insertBarangToDatabase(){
-//        productInterface produk = new productInterface();
+    private ProdukController produk = new ProdukController();
+    private List<SupplierInterface> prod = new ArrayList<>();
+    private List<categoriesInterface> categories = new ArrayList<>();
+    private utils.Ean validEan = new utils.Ean();
+
+    private LocalDate toLocalDate(javax.swing.JSpinner spinner) {
+        return ((java.util.Date) spinner.getValue())
+                .toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
     }
-    
-    private void renderSupplier(){
+
+    private void loadCategories() {
+        try {
+            this.categories = this.produk.getCategories();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Gagal load kategori: " + ex.getMessage());
+        }
+    }
+
+    private void renderCategories() {
+        this.ComboBoxCategori.removeAllItems();
+        this.loadCategories();
+        for (categoriesInterface items : this.categories) {
+            System.out.println("ID -> "+ items.id.toString());
+            this.ComboBoxCategori.addItem(items.name);
+        }
+    }
+
+    private void insertBarangToDatabase() {
+        try {
+            int indexSupplier = ComboBoxSupplier.getSelectedIndex();
+            int indexCategori = ComboBoxCategori.getSelectedIndex();
+            if (indexSupplier < 0 || indexSupplier >= prod.size()) {
+                JOptionPane.showMessageDialog(this, "Pilih supplier terlebih dahulu.");
+                return;
+            }
+            if (indexCategori < 0 || indexCategori >= categories.size()) {
+                JOptionPane.showMessageDialog(this, "Pilih kategori terlebih dahulu.");
+                return;
+            }
+
+            Integer sid = prod.get(indexSupplier).id;
+            Integer cid = categories.get(indexCategori).id;
+            System.out.println("supplier id = " + sid + ", category id = " + cid);
+
+            new Controller.ProdukController().tambahStokProduk(
+                    InputTextNomor.getText(),
+                    InputTextNama.getText(),
+                    cid,
+                    InputTextSatuan.getText(),
+                    InputTextHargaJual.getText(),
+                    sid,
+                    InputTextHargaBeli.getText(),
+                    InputTextQTY.getText(),
+                    toLocalDate(InputDateTanggalPesan),
+                    toLocalDate(InputDateTanggalMasuk),
+                    toLocalDate(InputDateTanggalKadaluarsa)
+            );
+            javax.swing.JOptionPane.showMessageDialog(this, "Batch berhasil ditambahkan.");
+        } catch (Exception e) {
+            javax.swing.JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+    }
+
+    private void renderSupplier() {
         this.ComboBoxSupplier.removeAllItems();
         try {
             this.prod = this.supplierController.getAll();
-            for(SupplierInterface prod : this.prod){
+            for (SupplierInterface prod : this.prod) {
                 this.ComboBoxSupplier.addItem(prod.nama);
             }
         } catch (SQLException ex) {
@@ -60,11 +130,33 @@ public class AddBarang extends javax.swing.JPanel {
     public AddBarang() {
         initComponents();
         this.renderSupplier();
+        this.renderCategories();
     }
-    
-    private void closeWindow(){
+
+    private void closeWindow() {
         Window w = SwingUtilities.getWindowAncestor(this);
-        if(w != null) w.dispose();
+        if (w != null) {
+            w.dispose();
+        }
+    }
+
+    private void isvalidEan() {
+        String inputText = this.InputTextNomor.getText().trim();
+        if (inputText.isEmpty()) {
+            ChangeTextIsValidEan.setText("");
+            return;
+        }
+        System.out.println("Chek panjang ->" + inputText.length());
+        if (inputText.length() == 8 || inputText.length() == 13) {
+            boolean isValidEan = validEan.validateEan(inputText);
+            if (isValidEan) {
+                this.ChangeTextIsValidEan.setText("Ean Valid");
+                return;
+            }
+            this.ChangeTextIsValidEan.setText("Ean tidak Valid");
+            return;
+        }
+        this.ChangeTextIsValidEan.setText("..");
     }
 
     /**
@@ -80,7 +172,7 @@ public class AddBarang extends javax.swing.JPanel {
         jPanel1 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         InputTextNomor = new javax.swing.JTextField();
-        jLabel3 = new javax.swing.JLabel();
+        ChangeTextIsValidEan = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
         InputTextNama = new javax.swing.JTextField();
@@ -98,18 +190,21 @@ public class AddBarang extends javax.swing.JPanel {
         InputTextQTY = new javax.swing.JTextField();
         jPanel7 = new javax.swing.JPanel();
         jLabel9 = new javax.swing.JLabel();
-        jSpinner2 = new javax.swing.JSpinner();
+        InputDateTanggalPesan = new javax.swing.JSpinner();
         jPanel8 = new javax.swing.JPanel();
         jLabel10 = new javax.swing.JLabel();
-        jSpinner1 = new javax.swing.JSpinner();
+        InputDateTanggalMasuk = new javax.swing.JSpinner();
         jPanel9 = new javax.swing.JPanel();
         jLabel11 = new javax.swing.JLabel();
-        jSpinner3 = new javax.swing.JSpinner();
+        InputDateTanggalKadaluarsa = new javax.swing.JSpinner();
         jPanel10 = new javax.swing.JPanel();
         jLabel12 = new javax.swing.JLabel();
         ComboBoxSupplier = new javax.swing.JComboBox<>();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
+        jPanel11 = new javax.swing.JPanel();
+        jLabel13 = new javax.swing.JLabel();
+        ComboBoxCategori = new javax.swing.JComboBox<>();
 
         jLabel1.setFont(new java.awt.Font("Monospaced", 1, 24)); // NOI18N
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -118,8 +213,15 @@ public class AddBarang extends javax.swing.JPanel {
         jLabel2.setFont(new java.awt.Font("Liberation Sans", 0, 18)); // NOI18N
         jLabel2.setText("Nomor");
 
-        jLabel3.setFont(new java.awt.Font("Liberation Sans", 0, 18)); // NOI18N
-        jLabel3.setText("Valid Ean 13");
+        InputTextNomor.addActionListener(this::InputTextNomorActionPerformed);
+        InputTextNomor.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                InputTextNomorKeyReleased(evt);
+            }
+        });
+
+        ChangeTextIsValidEan.setFont(new java.awt.Font("Liberation Sans", 0, 18)); // NOI18N
+        ChangeTextIsValidEan.setText("..");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -130,7 +232,7 @@ public class AddBarang extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(InputTextNomor)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(ChangeTextIsValidEan, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -139,7 +241,7 @@ public class AddBarang extends javax.swing.JPanel {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(InputTextNomor, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(ChangeTextIsValidEan, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 6, Short.MAX_VALUE))
         );
 
@@ -256,7 +358,7 @@ public class AddBarang extends javax.swing.JPanel {
         jLabel9.setFont(new java.awt.Font("Liberation Sans", 0, 18)); // NOI18N
         jLabel9.setText("Tanggal Pesan (yyyy/MM/dd)");
 
-        jSpinner2.setModel(new javax.swing.SpinnerDateModel());
+        InputDateTanggalPesan.setModel(new javax.swing.SpinnerDateModel());
 
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
         jPanel7.setLayout(jPanel7Layout);
@@ -265,7 +367,7 @@ public class AddBarang extends javax.swing.JPanel {
             .addGroup(jPanel7Layout.createSequentialGroup()
                 .addComponent(jLabel9)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jSpinner2)
+                .addComponent(InputDateTanggalPesan)
                 .addGap(8, 8, 8))
         );
         jPanel7Layout.setVerticalGroup(
@@ -273,14 +375,14 @@ public class AddBarang extends javax.swing.JPanel {
             .addGroup(jPanel7Layout.createSequentialGroup()
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jSpinner2, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(InputDateTanggalPesan, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 16, Short.MAX_VALUE))
         );
 
         jLabel10.setFont(new java.awt.Font("Liberation Sans", 0, 18)); // NOI18N
         jLabel10.setText("Tanggal Masuk (yyyy/MM/dd)");
 
-        jSpinner1.setModel(new javax.swing.SpinnerDateModel(new java.util.Date(1795574764770L), null, null, java.util.Calendar.DAY_OF_MONTH));
+        InputDateTanggalMasuk.setModel(new javax.swing.SpinnerDateModel(new java.util.Date(1795574764770L), null, null, java.util.Calendar.DAY_OF_MONTH));
 
         javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
         jPanel8.setLayout(jPanel8Layout);
@@ -289,7 +391,7 @@ public class AddBarang extends javax.swing.JPanel {
             .addGroup(jPanel8Layout.createSequentialGroup()
                 .addComponent(jLabel10)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jSpinner1)
+                .addComponent(InputDateTanggalMasuk)
                 .addContainerGap())
         );
         jPanel8Layout.setVerticalGroup(
@@ -297,14 +399,14 @@ public class AddBarang extends javax.swing.JPanel {
             .addGroup(jPanel8Layout.createSequentialGroup()
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jSpinner1, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(InputDateTanggalMasuk, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 7, Short.MAX_VALUE))
         );
 
         jLabel11.setFont(new java.awt.Font("Liberation Sans", 0, 18)); // NOI18N
         jLabel11.setText("Tanggal Kadaluarsa (yyyy/MM/dd)");
 
-        jSpinner3.setModel(new javax.swing.SpinnerDateModel(new java.util.Date(1795574757268L), null, null, java.util.Calendar.DAY_OF_MONTH));
+        InputDateTanggalKadaluarsa.setModel(new javax.swing.SpinnerDateModel(new java.util.Date(1795574757268L), null, null, java.util.Calendar.DAY_OF_MONTH));
 
         javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
         jPanel9.setLayout(jPanel9Layout);
@@ -313,7 +415,7 @@ public class AddBarang extends javax.swing.JPanel {
             .addGroup(jPanel9Layout.createSequentialGroup()
                 .addComponent(jLabel11)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jSpinner3, javax.swing.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
+                .addComponent(InputDateTanggalKadaluarsa, javax.swing.GroupLayout.DEFAULT_SIZE, 271, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel9Layout.setVerticalGroup(
@@ -321,7 +423,7 @@ public class AddBarang extends javax.swing.JPanel {
             .addGroup(jPanel9Layout.createSequentialGroup()
                 .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jSpinner3, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(InputDateTanggalKadaluarsa, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 7, Short.MAX_VALUE))
         );
 
@@ -358,6 +460,29 @@ public class AddBarang extends javax.swing.JPanel {
         jButton2.setText("Simpan");
         jButton2.addActionListener(this::jButton2ActionPerformed);
 
+        jLabel13.setFont(new java.awt.Font("Liberation Sans", 0, 18)); // NOI18N
+        jLabel13.setText("Categori");
+
+        ComboBoxCategori.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        javax.swing.GroupLayout jPanel11Layout = new javax.swing.GroupLayout(jPanel11);
+        jPanel11.setLayout(jPanel11Layout);
+        jPanel11Layout.setHorizontalGroup(
+            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel11Layout.createSequentialGroup()
+                .addComponent(jLabel13)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(ComboBoxCategori, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel11Layout.setVerticalGroup(
+            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel11Layout.createSequentialGroup()
+                .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 7, Short.MAX_VALUE))
+            .addComponent(ComboBoxCategori)
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -380,7 +505,8 @@ public class AddBarang extends javax.swing.JPanel {
                     .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(jPanel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -389,6 +515,8 @@ public class AddBarang extends javax.swing.JPanel {
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jPanel11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -420,12 +548,27 @@ public class AddBarang extends javax.swing.JPanel {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        this.insertBarangToDatabase();
         this.closeWindow();
     }//GEN-LAST:event_jButton2ActionPerformed
 
+    private void InputTextNomorKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_InputTextNomorKeyReleased
+        System.out.println("Kliki");
+        this.isvalidEan();
+    }//GEN-LAST:event_InputTextNomorKeyReleased
+
+    private void InputTextNomorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_InputTextNomorActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_InputTextNomorActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel ChangeTextIsValidEan;
+    private javax.swing.JComboBox<String> ComboBoxCategori;
     private javax.swing.JComboBox<String> ComboBoxSupplier;
+    private javax.swing.JSpinner InputDateTanggalKadaluarsa;
+    private javax.swing.JSpinner InputDateTanggalMasuk;
+    private javax.swing.JSpinner InputDateTanggalPesan;
     private javax.swing.JTextField InputTextHargaBeli;
     private javax.swing.JTextField InputTextHargaJual;
     private javax.swing.JTextField InputTextNama;
@@ -438,8 +581,8 @@ public class AddBarang extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
@@ -448,6 +591,7 @@ public class AddBarang extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel10;
+    private javax.swing.JPanel jPanel11;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
@@ -456,8 +600,5 @@ public class AddBarang extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
     private javax.swing.JPanel jPanel9;
-    private javax.swing.JSpinner jSpinner1;
-    private javax.swing.JSpinner jSpinner2;
-    private javax.swing.JSpinner jSpinner3;
     // End of variables declaration//GEN-END:variables
 }

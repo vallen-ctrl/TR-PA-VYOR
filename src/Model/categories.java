@@ -31,10 +31,13 @@ public class categories extends model {
         ResultSet res = this.select().run();
         
         while(res.next()){
-            categoris.add(new categoriesInterface(
+            categoriesInterface cat = new categoriesInterface(
+                    res.getInt("id"),
                     res.getString("nama"),
                     res.getBoolean("dihapus")
-            ));
+            );
+            categoris.add(cat);
+//            System.out.println("ID -> " + cat.id);
         }
         
         return categoris;

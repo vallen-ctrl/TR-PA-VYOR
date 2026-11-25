@@ -30,20 +30,23 @@ public class suppliers extends model {
 
     public List<SupplierInterface> get() throws SQLException {
         List<SupplierInterface> supplierList = new ArrayList<>();
-        ResultSet res;
+        ResultSet res = this.select().where("dihapus = 0").run();
 
-        res = this.select().where("dihapus = 0").run();
         while (res.next()) {
-            supplierList.add(new SupplierInterface(
-                    res.getInt("id"),
-                    res.getString("nama"),
-                    res.getString("alamat"),
-                    res.getString("nomor_hp"),
-                    res.getInt("dihapus")
-            ));
+            supplierList.add(this.mapping(res));
         }
 
         return supplierList;
+    }
+
+    public SupplierInterface mapping(ResultSet res) throws SQLException {
+        return new SupplierInterface(
+                res.getInt("id"),
+                res.getString("nama"),
+                res.getString("alamat"),
+                res.getString("nomor_hp"),
+                res.getInt("dihapus")
+        );
     }
 
     public int removeSupplier(Integer idSupplier) {
