@@ -26,6 +26,13 @@ public class productInterface {
     public String String_categories;    
     public String String_supplier;
 
+    public productInterface(String nomor, String nama, Integer category_id, Double harga_jual) {
+        this.nomor = nomor;
+        this.nama = nama;
+        this.category_id = category_id;
+        this.harga_jual = harga_jual;
+    }
+    
     public productInterface(Integer id, String nomor, String nama, Integer category_id, Integer supplier_id, String satuan, Double harga_beli, Double harga_jual, Integer stok, LocalDate terakhir_disuppli, boolean dihapus, String String_categories, String String_supplier) {
         this.id = id;
         this.nomor = nomor;

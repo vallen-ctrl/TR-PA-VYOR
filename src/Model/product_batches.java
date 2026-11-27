@@ -55,8 +55,7 @@ public class product_batches extends model {
         }     
         return batch;
     }
-    
-    
+     
     
     public product_batchInterface mapping(ResultSet res) throws SQLException{
         return new product_batchInterface(

@@ -29,6 +29,20 @@ public class ProdukController {
         return prod.getAll();
     }
 
+    public int updateProduk(String produkIdTemp, productInterface produk) throws SQLException {
+        String[] colums = {"nomor", "nama", "category_id", "harga_jual"};
+        String[] values = {String.valueOf(produk.nomor), produk.nama, String.valueOf(produk.category_id), produk.harga_jual.toString()};
+ 
+        return this.prod.update(colums, values)
+                .where("nomor = "+ this.prod.esc(produkIdTemp))
+                .execute();
+    }
+
+    public int HapusProduk(String nomorProduk) throws SQLException {
+        productInterface produk = prod.getProductByNumber(nomorProduk);
+        return this.prod.remove(produk.id);
+    }
+
     public int AddProduct(productInterface insertProduk) throws SQLException {
         return this.prod.add(insertProduk);
     }
@@ -36,11 +50,24 @@ public class ProdukController {
     public List<categoriesInterface> getCategories() throws SQLException {
         return this.kategori.get();
     }
-    
+
     public void main(String[] args) throws SQLException {
-        for(categoriesInterface c : this.getCategories()){
-            System.out.println("C -> " + c.id);
-        }
+        this.tambahStokProduk(
+                "567", // nomor
+                "Kopi Arabika 250g", // nama
+                1, // categoryId
+                "pcs", // satuan
+                "25000", // hargaJual
+                2, // supplierId
+                "18000", // hargaBeli
+                "10", // qtyText
+                LocalDate.now(), // tanggalPesan
+                LocalDate.now(), // tanggalMasuk
+                LocalDate.now().plusMonths(6) // tanggalKadaluarsa
+        );
+
+        System.out.println("Stok produk berhasil ditambahkan.");
+
     }
 
     public void tambahStokProduk(String nomor, String nama, Integer categoryId, String satuan,
@@ -64,9 +91,11 @@ public class ProdukController {
             produk = prod.getProductByNumber(nomor); // ambil ulang untuk dapat id
         }
 
-        // Insert batch (qty_sisa = qty karena batch baru)
+        System.out.println("id -> " + produk.id);
+
+//         Insert batch (qty_sisa = qty karena batch baru)
         product_batchInterface dataBatch = new product_batchInterface(
-                produk.id, supplierId, hargaBeliBD, qty, qty,
+                supplierId, produk.id, hargaBeliBD, qty, qty,
                 tanggalPesan, tanggalMasuk, tanggalKadaluarsa
         );
         this.batch.addbatch(dataBatch);

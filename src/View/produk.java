@@ -29,7 +29,7 @@ public class produk extends javax.swing.JFrame {
     private DefaultTableModel model;
     private ProdukController produkController = new ProdukController();
     
-    private void toDetailProduk(int id){
+    private void toDetailProduk(long id){
         detail_produk next = new detail_produk(String.valueOf(id));
         next.setSize(this.getSize());
         next.setLocation(this.getLocation());
@@ -55,7 +55,7 @@ public class produk extends javax.swing.JFrame {
 
                 // aksi double click di sini, misalnya buka form edit
                 System.out.println("Double click ID: " + id);
-                toDetailProduk(Integer.parseInt(String.valueOf(id)));
+                toDetailProduk(Long.parseLong(String.valueOf(id)));
             }
         });
     }
@@ -67,7 +67,7 @@ public class produk extends javax.swing.JFrame {
                 this.model.addRow(
                         new Object[]{prod.nomor, prod.nama, prod.String_categories,
                             prod.stok, prod.satuan, prod.harga_jual,
-                            prod.String_supplier, prod.terakhir_disuppli.toString()}
+                            prod.String_supplier, }
                 );
             }
         } catch (SQLException ex) {

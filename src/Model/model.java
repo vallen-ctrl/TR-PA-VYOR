@@ -123,6 +123,10 @@ public abstract class model {
         return this;
     }
     
+    public String esc(String input){
+        return "'"+input+"'";
+    }
+    
     /**
      * ini akan membantu membuat right join di sql dengan menambahkan bantuan leftJoin
      * @param tabel nama tabel yang akan dimasukan 
@@ -263,9 +267,6 @@ public abstract class model {
         buildSql();
         try {
             return this.stm.executeQuery(this.SQL);
-        } catch (Exception e) {
-            System.out.println("Error message: %s\n SQL_QUERY:%s".formatted(e.getMessage(), this.SQL));
-            return null;
         } finally {
             reset();
         }
@@ -282,9 +283,6 @@ public abstract class model {
         buildSql();
         try {
             return this.stm.executeUpdate(this.SQL);
-        } catch (Exception e) {
-            System.out.println("Error message: %s\n SQL_QUERY:%s".formatted(e.getMessage(), this.SQL));
-            return -1;
         } finally {
             reset();
         }

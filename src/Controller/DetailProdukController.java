@@ -16,11 +16,16 @@ import java.util.List;
 public class DetailProdukController {
     private product_batches batch = new product_batches();
     private products prod = new products();
+    private ProdukController produkController = new ProdukController();
     
     public productInterface getProdukByNumber(String Number) throws SQLException{
         return this.prod.getProductByNumber(Number);
     }
     public List<product_batchInterface> getBatches(int produkId) throws SQLException{
         return this.batch.get(produkId);
+    }
+    
+    public int updateProduk(String noProduk, productInterface pr) throws SQLException{
+        return this.produkController.updateProduk(noProduk, pr);
     }
 }
